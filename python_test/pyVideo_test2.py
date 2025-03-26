@@ -58,10 +58,13 @@ frameDelay = 1 #videoInfo.mspf
 #bgImg = cv2.cvtColor(bgImg, cv2.COLOR_BGR2GRAY)
 #bgImg = cv2.GaussianBlur(bgImg, (21, 21), 0)
 
-firstTime = True
+isFirstFrame = True
 bgImg = None
 
-snapTo = 20
+# Snapto parameter from the settings table
+snapTo = settings.getSetting("scanning.snapTo")
+
+
 shiftLimit = 100
 
 # Rectangle, size, anchor point
@@ -85,18 +88,26 @@ while True:
 
     frame = cv2.resize(frame, (0,0), fx=frameScaleFactor, fy=frameScaleFactor)
 
-    if firstTime: # Open the output video with scaled frame size 
+    if isFirstFrame: 
+        # Open the output video taking the output size from the incoming scaled frame size 
+
+        # First, get details of the frame size from its shape property
         print("Frame shape from first frame:", frame.shape)
         fheight, fwidth, fchannels = frame.shape
 
+        # Create the video writer output using the same fps and frame size as the input
         videoOutfo = Brunel.VideoWriterMP4(videoOutputFileName, videoInfo.fps, ( fwidth, fheight ) ) #videoInfo.frameSize )
         videoOut = videoOutfo.video
         
-    monochromeFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # Convert colour image to monochrome (greyscale) image
+    monochromeFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) 
+
+    # Slightly blur the incoming image, which helps to avoid false positives from background movement
+    # We may need to rethink this if the moving objects are particularly small in the frame.
     monochromeFrame = cv2.GaussianBlur(monochromeFrame, (21, 21), 0)
 
-    # If this is the first time, then use the first frame as the background for comparison.
-    if firstTime:
+    # If this is the first frame, then use the first frame as the background for comparison.
+    if isFirstFrame:
         prevImg = monochromeFrame
 
     # Get the background image as the previous image that was read
@@ -110,19 +121,27 @@ while True:
 
     # Get the contours found in the threshold image
     contourList, res = cv2.findContours( thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
+
+    # Report processing stats
     if len(contourList) > maxContours:
         maxContours = len(contourList)
 
     print( "\rFrame:", frameNumber, "Countours:", len(contourList), " Max:", maxContours, "           ", end="\r" )
 
-    # Process the contours 
+
+    #
+    # Process the contours to establish the bounding boxes of all the moving objects
+    #
     boxes = []
+
+
     if True: #len(contourList)<50: # Only show rectangles if there are fewer than 50 on the frame
         
         for contour in contourList:
             # get the bounding rectangle of the contour
             (x, y, w, h) = cv2.boundingRect(contour)           
 
+            # Adjust the rectangle to snap to a grid determined by the snapTo setting
             t = y#(y-snapTo) 
             l = x#(x-snapTo) 
             b = y+h+snapTo
@@ -137,6 +156,7 @@ while True:
 
     # Check for sudden increase in number of boxes, ignore the frame
     if len(boxes) - len(prevBoxes) > 15:
+        # Adopt all the boxes found on the previous frame
         boxes = prevBoxes
 
     else:
@@ -196,7 +216,7 @@ while True:
 
 
     # reset the firstTime flag
-    firstTime = False
+    isFirstFrame = False
 
 print( "\n ##################################################### Finished at", datetime.now().strftime("%H:%M") )
 #video.release()

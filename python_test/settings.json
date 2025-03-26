@@ -7,11 +7,16 @@
         "workfolderB": "",
         "postprocess": ""
     }
-    
+
     , "videoTypes":{
         "mp4": { "fourcc": ""} 
         , "ts": { "fourcc": ""}
         , "avi": { "fourcc": ""}
 
     }
+    , "scanning":{
+        "maxFrameSize": 1080,
+        "snapTo": 20
+    }
+
 }
