@@ -1,0 +1,17 @@
+{
+    "folders":{
+        "incoming": "",
+        "processed": "",
+        "preprocess": "",
+        "workfolderA": "",
+        "workfolderB": "",
+        "postprocess": ""
+    }
+    
+    , "videoTypes":{
+        "mp4": { "fourcc": ""} 
+        , "ts": { "fourcc": ""}
+        , "avi": { "fourcc": ""}
+
+    }
+}

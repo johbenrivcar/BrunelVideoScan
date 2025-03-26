@@ -1,6 +1,7 @@
 import cv2
 import math
 import Brunel
+import settings
 from datetime import datetime
 #
 #  Generating the movements file from the input:

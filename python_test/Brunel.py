@@ -1,4 +1,5 @@
 import cv2
+import settings
 
 class Colours:
     def __init__(self):
