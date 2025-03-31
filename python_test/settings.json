@@ -1,6 +1,6 @@
 {
     "folders":{
-        "incoming": "",
+        "incoming": "G:/My Drive/Laserware - video scanning request (File responses)/Upload the video files to be scanned (File responses)/rabbit - JohnRC.mp4",
         "processed": "",
         "preprocess": "",
         "workfolderA": "",
@@ -16,7 +16,9 @@
     }
     , "scanning":{
         "maxFrameSize": 1080,
-        "snapTo": 20
+        "snapTo": 20,
+        "skipAfter": 10,
+        "shiftLimit": 100
     }
 
 }

@@ -3,6 +3,9 @@ import math
 import Brunel
 import settings
 from datetime import datetime
+
+
+
 #
 #  Generating the movements file from the input:
 #     Whenever there are movement boxes, we want to generate output to the report video which
@@ -14,15 +17,27 @@ from datetime import datetime
 #
 #
 
+# GET SETTINGS ######################################################
+getSetting = settings.getSetting
+# ==== FOLDER settings
+incomingFolder = getSetting("folders.incoming")
+print("Incoming folder is: ", incomingFolder )
+
+# ==== Scanning settings
+snapTo = settings.getSetting("scanning.snapTo")
+skipAfter = settings.getSetting("scanning.skipAfter")
+shiftLimit = settings.getSetting("scanning.shiftLimit")
+#
+# ****************
+
 print( "\n ##################################################### Started at", datetime.now().strftime("%H:%M") )
 COLOURS = Brunel.Colours()
 
 print ( "Red and green: ", COLOURS.mix(COLOURS.red, COLOURS.green) )
 
+videoSourceFileName = incomingFolder #"images/videoplayback.mp4"
 
-
-#videoSourceFileName = "images/videoplayback.mp4"
-videoSourceFileName = "images/rabbit.mp4"
+#videoSourceFileName = "images/rabbit.mp4"
 
 #videoSourceFileName = "G:/My Drive/Chorus/Brunel/VideoProcessing/Incoming/20250302 Great Brockeridge Tree Survey/20250321_045556F.ts"
 videoOutputFileName = videoSourceFileName + ".scanned.mp4"
@@ -61,11 +76,7 @@ frameDelay = 1 #videoInfo.mspf
 isFirstFrame = True
 bgImg = None
 
-# Snapto parameter from the settings table
-snapTo = settings.getSetting("scanning.snapTo")
 
-
-shiftLimit = 100
 
 # Rectangle, size, anchor point
 element = cv2.getStructuringElement(0, (11, 11), (5, 5))
@@ -75,7 +86,14 @@ print("Countour detection.....");
 #print("");
 maxContours = 0
 frameNumber = 0
+outputFrameCount = 0
 prevBoxes = []
+# Flags to indicate the video is skipping if no movement is found
+skipping = True
+skipCountDown = 0
+skipCountUp = 0
+skip1 = False
+
 print("Start of video +++++++++++++++++++++++++++++++++")
 while True:
     status, frame = video.read()
@@ -126,7 +144,7 @@ while True:
     if len(contourList) > maxContours:
         maxContours = len(contourList)
 
-    print( "\rFrame:", frameNumber, "Countours:", len(contourList), " Max:", maxContours, "           ", end="\r" )
+    print( "\rFrame:", frameNumber, outputFrameCount, "Countours:", len(contourList), " Max:", maxContours, "           ", end="\r" )
 
 
     #
@@ -202,17 +220,58 @@ while True:
 
     prevBoxes = boxes
 
-    cv2.imshow("Scaneed", frame)
-    videoOut.write( frame )
-    #cv2.imshow("Diff video", diff)
-    #cv2.imshow("Threshold", thresh )
+    # If there are no boxes to be shown, set the frame skipping 
+    # control variables
+    if len(boxes)==0:
+        skipCountUp = 0
+        # Are we already skipping? if so, we just continue to skip
+        if not skipping:
+            # We are not already skipping check the countdown
+            if skipCountDown > 0:
+                # We are already counting down, count down again
+                skipCountDown -=1
+                # if the countdown is complete, start skipping
+                if skipCountDown == 0:
+                    skipping = True
+                    print(" SKIPPING STARTED at frame ", frameNumber)
+            else:
+                # We are not skipping and there's no countdown, so
+                # this must be the first frame with no movement, so
+                # start the countdown
+                skipCountDown = skipAfter
+    else:
+        # There is movement in this frame, so stop skipping
+        # and stop counting down.
+        if skipping:
+            if len(boxes)==1:
+                # If this is the first box to show movement during
+                # skipping and there is only one box, then skip 3
+                # frames, because it's probably spurious
+                skipCountUp +=1
+                if skipCountUp > 4:
+                    skipping = False
+                    skipCountDown = 0
+                    skipCountUp = 0
+            else: 
+                # More than one box on the frame so stop skipping
+                skipping = False
+                skipCountDown = 0
+                skipCountUp = 0
+    
+    # Check the skipping flag to see if we need to output the frame
+    if not skipping:
+        outputFrameCount += 1
+        cv2.imshow("Scanned", frame)
+        videoOut.write( frame )
+        key = cv2.waitKey(frameDelay)
+        if key == ord('q'):
+            exit(0)
+        #cv2.imshow("Diff video", diff)
+        #cv2.imshow("Threshold", thresh )
 
     prevImg = monochromeFrame
 
 
-    key = cv2.waitKey(frameDelay)
-    if key == ord('q'):
-        break
 
 
     # reset the firstTime flag
