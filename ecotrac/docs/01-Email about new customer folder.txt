@@ -1,0 +1,10 @@
+This shared folder is for you to submit videos to 
+be scanned by Brunel's ecotrac system.
+
+Drop your batch of videos here in a folder
+containing all the video files (.mp4 or .avi)
+you want to be scanned in a single run. 
+
+After the scan there will be a single 
+generated video containing only those 
+parts that show movement.

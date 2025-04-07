@@ -1,8 +1,11 @@
 
-const fs = require("fs");
+// const fs = require("fs");
+// const eGlobal = require("./ecotrac_global");
+// const settings = require("./ecotrac_settings");
 
-const global = require("./ecotrac_global");
-const settings = require("./ecotrac_settings");
+const utils = require("./ecotrac_utils")
+const dinfo = utils.dinfo;
+
 
 let hhmm = "0000"
 let mmss = "00:00"
@@ -26,34 +29,12 @@ function getLogger(context){
         }
         
         lastContext = context;
-        console.log("[" + context + "]"   , ...params )
+        console.log(context + "| "   , ...params )
     }
     return fn
 }
 
-function dinfo( dt = new Date() ){
-    let utc = dt.toUTCString();
-    //console.log(sdt)
-    let hh= utc.substring(17,19)
-    let mm= utc.substring(20, 22)
-    let ss= utc.substring(23, 25)
-    let dinfo = {
-        // dd: utc.substring(5,7)
-        // ,
-        //mm
-        //,hh
-        //,
-        mm
-        ,ss
-        //,yyyy: utc.substring(12,16)
-        ,hhmm: hh+mm
-        , mmss: mm + ":" + ss
-        ,full: utc.substring(5, 25)
-        //,ts: mm + ":" + ss
-        ,utc
-    }
-    return dinfo;
-}
+
 
 // let log = getLogger("test");
 // for( c=2000; c>0; c--){

@@ -3,69 +3,109 @@
  * functions that act on those folders.
  */
 
+
+exports.foundFolder = foundCustomerFolder;
+exports.load = load;
+exports.getCustomer = getCustomer;
+exports.INIT = INIT;
+
+
+var bINIT = false;
 const fs = require("fs");
-const global = require("./ecotrac_global");
+
 const utils = require("./ecotrac_utils");
-
-// FOR TESTING ONLY
-global.RUN_MODE = "DEV"
-global.ECOTRAC_ROOT_PATH = "G:/My Drive/Chorus/Brunel/ecotrac/DEV/";
-
+const eGlobal = require("./ecotrac_global");
 const settings = require("./ecotrac_settings");
-//const { get } = require("http");
-const log = require("./ecotrac_logger").getLogger("ecotrac_allCustomers")
-
-const orderFolder = require("./ecotrac_orderFolder");
-log( "orderFolder", orderFolder );
+const customer = require("./ecotrac_customer");
+const newCustomer = customer.newCustomer;
 
 
-const getStateAndKeyFromFolderName = utils.getStateAndKeyFromFolderName;
+const log = require("./ecotrac_logger").getLogger("_allCustomers")
+log("### MODULE LOADING STARTED");
 
-const Customer = require("./ecotrac_customer")
-const newCustomer = Customer.newCustomer;
-
-log("Loading customer json:");
-let allCustomersJSONPath = settings.ecotracRootPath + settings.paths.dataFolder + "customers.json"
-const allCustData = require(allCustomersJSONPath)
-log("allCustData:", allCustData)
-
+const allCustomersJSONPath = eGlobal.ECOTRAC_ROOT_PATH + settings.paths.dataFolder + "customers.json"
+var allCustData = {};
 const allCustomers = {};
 
-// get a reference to the customer folder
-
-//customerMasterFolder = require("./ecotrac_customerMasterFolder");
-
+log(" -- Path is " + allCustomersJSONPath );
+log("### MODULE LOADING COMPLETE");
 
 
-function foundFolder(email, folderPath){
-    log( "foundFolder", email, folderPath);
+function INIT(){
+    
+    if(bINIT) return;
+    bINIT = true;
+
+    customer.INIT();
+
+    log(">>INIT");
+
+
+    let cd = require(allCustomersJSONPath)
+    Object.assign(allCustData, cd);
+    log("allCustData:", allCustData);
+    log("<<INIT");
+
+}
+
+function load(){
+    log(">>.load()")
+    // get the customer record keys from the JSON data
+    let custKeys = Object.keys(allCustData);
+    // creating customer entries in allCustData
+    custKeys.forEach( (key, ix)=>{
+
+        custData = allCustData[key];
+        let customer = newCustomer()
+        log("Created empty customer record ")
+        log( customer );
+        if(!customer.startMonitoringCustomer){
+            log("Could not find monitoring function");
+        } else log("Monitoring function was found");
+        customer.loadFromDataFile(custData);
+        log("Loaded data from custData json" + key)
+        log( customer );
+        if(!customer.startMonitoringCustomer){
+            log("Could not find monitoring function");
+        } else log("Monitoring function was found");
+
+        allCustomers[key]=customer;
+    })
+
+    let ccc1 = allCustomers["charles@brunelbrands.com"];
+    if( ccc1.startMonitoringCustomer ) { log(" After load, Monitor function was found" ) } else { log("After load, Monitor function not found")}
+
+
+    saveAllCustomersJSON();
+
+};
+
+
+
+function foundCustomerFolder(email, folderFullPath){
+    log( ".foundCustomerFolder", email, folderFullPath);
+
     // get the customer record from the customer data
-    cust = allCustData[email]
-    if(!allCustData[email]){
+    let cust = allCustomers[email]
+    // Does the customer already exist?
+    if(!cust){
+        // No, so create a new customer folder
         log("no customer data for that folder")
-        let nc = new newCustomer();
-        nc.buildFromFolder(email, folderPath);
-        return;
+        cust = customer.newCustomer();
+        // check
+        log("new cust raw", cust)
+        cust.buildFromFolder(email, folderFullPath);
+        allCustomers[email]=cust;
+
+        log("updated from folder", cust)
+
+        setImmediate( ()=>{cust.startMonitoringCustomer();} );
+        return cust;
     }
     log("Customer record found for folder..")
-
+    return cust;
     
 }
-module.exports.foundFolder = foundFolder;
-
-
-function load_allCustomers(){
-    log(">>load_allCustomers()")
-    let custKeys = Object.keys(allCustData);
-    custKeys.forEach( (key, ix)=>{
-        custData = allCustData[key];
-        let customer = newCustomer().loadFromDataFile(custData);
-        allCustomers[key]=customer;
-
-    })
-    saveAllCustomersJSON();
-};
-module.exports.load = load_allCustomers;
 
 function getCustomer(email){
     let cc = allCustomers[email];
@@ -75,30 +115,33 @@ function getCustomer(email){
 }
 
 
-module.exports.getCustomer = getCustomer;
 
 function saveAllCustomersJSON(){
+    log(">> saveAllCustomersJSON (which also saves old customer JSON to backup)");
+
+    let ccc1 = allCustomers["charles@brunelbrands.com"];
+    if( ccc1.startMonitoringCustomer ) { log(" Monitor function was found" ) } else { log("Monitor function not found")}
+
+    // Get the old JSON from the allCustData object
     let oldJSON = JSON.stringify( allCustData, null, 3 );
-    let fileNameBackup = allCustomersJSONPath + "_" + global.dts();
-    fs.writeFile(fileNameBackup, oldJSON );
+    let fileNameBackup = allCustomersJSONPath + "_" + utils.dts() + ".json";
+    fs.writeFileSync(fileNameBackup, oldJSON );
 
-    let allCustData = Object.assign( {}, allCustomers) ;
+    // Create a copy of all the customer data from the array of all customers
+    allCustData = Object.assign( {}, allCustomers) ;
 
+    // Create the JSON string from all that data
     let newJSON = JSON.stringify( allCustData, null, 3 );
-    fs.writeFile(allCustomersJSONPath, newJSON );
 
-    
+    // Write the new JSON to the customers.json file
+    fs.writeFileSync(allCustomersJSONPath, newJSON );
+
+    // Check the Customer data
+    log(" allCustomers:"); log( allCustomers )
+    let ccc2 = allCustomers["charles@brunelbrands.com"];
+    if( ccc2.startMonitoringCustomer ) { log(" Monitor function was found" ) } else { log("Monitor function not found")}
+    log("<< saveAllCustomersJSON");
+    //process.exit(3223)
 
 }
 
-
-
-console.log("gsak", getStateAndKeyFromFolderName);
-
-log("TESTING")
-log( getStateAndKeyFromFolderName("asdlkjas") )
-log( getStateAndKeyFromFolderName("mma.oasid") )
-log( getStateAndKeyFromFolderName("asdfalskdfj.anything") )
-log( getStateAndKeyFromFolderName("mma_oasid.ProCeSSed") )
-log( getStateAndKeyFromFolderName("mma.oasid.processing") )
-log( getStateAndKeyFromFolderName("mma.oasid.ready") )

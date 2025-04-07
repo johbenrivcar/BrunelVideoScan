@@ -1,5 +1,7 @@
 import cv2
+import sys
 import settings
+
 
 class Colours:
     def __init__(self):
@@ -37,23 +39,46 @@ class VideoReader:
         print(" -- opening VideoReader --------------------------")
         self.video = video = cv2.VideoCapture(videoFileName)
 
+        #TO DO - handle file open error here
+        # Get hold of the first frame from the video and save it as the reference frame
+        (status, frame1) = video.read()
+        self.prevFrame = self.refFrame = frame1
+        
+        # Now get various properties of the video file which will
+        # inform the output  file creation - we copy frames per
+        # second to keep movement realistic in output video
         fps = video.get(cv2.CAP_PROP_FPS)
         if fps == 0:
             print( " -- fps is zero, defaulting to 30")
             fps = 30
         self.fps = fps
-        self.mspf = int(round(1000/self.fps))
-        self.frameWidth = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-        self.frameHeight = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        self.frameSize = ( self.frameWidth, self.frameHeight )
-        self._print()
-        
 
+        # Calculate milliseconds per frame for playback delay (if needed)
+        self.mspf = int(round(1000/self.fps))
+        
+        # Not using properties of the video file as this seems to return zero sometimes
+        #self.frameWidth = frameWidth = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+        #self.frameHeight = frameHeight = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+        # Get the frame height and width directly from the first frame of the video
+        frameHeight, frameWidth, channels = frame1.shape
+        self.frameHeight = frameHeight
+        self.frameWidth = frameWidth
+        self.frameSize = ( frameWidth, frameHeight )
+
+        # Generate a report of this input vidoe to the console.
+        self._print()
+    
+    # Function to read the next frame from the video
+    def getFrame(self):
+        ffr = self.video.read()
+        return ffr
 
     def _print(self):
         print("************ videoReaderInformation:", self.fileName)
         print("* Frames per second:", self.fps, "(", self.mspf, "ms per frame)")
         print("* Frame width x height: ", self.frameWidth, "x", self.frameHeight  )
+        print("********************************************************")
         
         
 
@@ -79,8 +104,8 @@ class VideoWriterMP4:
         self.frameHeight = frameSize[1]
         self._print()
         
-    def write(self,frame):
-        self.video.write(frame)
+    def write(frame):
+        video.write(frame)
 
     def _print(self):
         print("************ videoWriter Information:", self.fileName, "*****************")

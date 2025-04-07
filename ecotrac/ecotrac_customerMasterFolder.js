@@ -2,8 +2,8 @@
  * Represents the folder that contains all the customer's folders. These are the folders into which the customer
  * can load vidoes for processing.
  */
-
-const global = require("./ecotrac_global");
+var bINIT = false;
+const eGlobal = require("./ecotrac_global");
 const settings = require("./ecotrac_settings");
 const allCustomers = require("./ecotrac_allCustomers");
 
@@ -11,12 +11,15 @@ const fs = require("fs");
 const paths = settings.paths;
  
 const log = require("./ecotrac_logger").getLogger("eoctrac_customerMasterFolder");
-const customerMasterFolderPath = global.ECOTRAC_ROOT_PATH + paths.customersFolder;
-const custFolders = {};
-;
+log("###> LOADING MODULE")
+log("Settings on entry to _customerMasterFolder: ", settings)
+const customerMasterFolderPath = settings.customersFolderFullPath;
 
 const customerNamePrefix = settings.customers.customerNamePrefix;
 const pfxLen = customerNamePrefix.length;
+
+module.exports.load = load;
+module.exports.INIT = INIT;
 
 
 
@@ -38,5 +41,10 @@ function folderEvent( eventData ){
 
 }
 
+function INIT(){
+    if(bINIT) return;
+    bINIT = true;
+    load();
+}
 
-module.exports.load = load;
+log("### MODULE LOADED");

@@ -1,6 +1,6 @@
 import cv2
 import math
-import Brunel
+import brunel_ecotrac_classesA
 import settings
 from datetime import datetime
 
@@ -31,7 +31,7 @@ shiftLimit = settings.getSetting("scanning.shiftLimit")
 # ****************
 
 print( "\n ##################################################### Started at", datetime.now().strftime("%H:%M") )
-COLOURS = Brunel.Colours()
+COLOURS = brunel_ecotrac_classesA.Colours()
 
 print ( "Red and green: ", COLOURS.mix(COLOURS.red, COLOURS.green) )
 
@@ -42,7 +42,7 @@ videoSourceFileName = incomingFolder #"images/videoplayback.mp4"
 #videoSourceFileName = "G:/My Drive/Chorus/Brunel/VideoProcessing/Incoming/20250302 Great Brockeridge Tree Survey/20250321_045556F.ts"
 videoOutputFileName = videoSourceFileName + ".scanned.mp4"
 
-videoInfo = Brunel.VideoReader(videoSourceFileName)
+videoInfo = brunel_ecotrac_classesA.VideoReader(videoSourceFileName)
 
 frameScaleFactor = 1 #0.5 # Half the size output video compared to input video
 if videoInfo.frameWidth > 1080:
@@ -114,7 +114,7 @@ while True:
         fheight, fwidth, fchannels = frame.shape
 
         # Create the video writer output using the same fps and frame size as the input
-        videoOutfo = Brunel.VideoWriterMP4(videoOutputFileName, videoInfo.fps, ( fwidth, fheight ) ) #videoInfo.frameSize )
+        videoOutfo = brunel_ecotrac_classesA.VideoWriterMP4(videoOutputFileName, videoInfo.fps, ( fwidth, fheight ) ) #videoInfo.frameSize )
         videoOut = videoOutfo.video
         
     # Convert colour image to monochrome (greyscale) image
@@ -169,7 +169,7 @@ while True:
             adjl = l - l % snapTo
             adjb = b - x % snapTo
             adjr = r - x % snapTo
-            box = Brunel.Box(adjl, adjt, adjr, adjb)
+            box = brunel_ecotrac_classesA.Box(adjl, adjt, adjr, adjb)
             boxes.append( box )
 
     # Check for sudden increase in number of boxes, ignore the frame

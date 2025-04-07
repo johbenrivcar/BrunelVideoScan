@@ -1,12 +1,11 @@
 
 
-global = require("./ecotrac_global")
-if(!global["RUN_MODE"]){
-    var run_mode = global.RUN_MODE = "DEV";
-    global.ECOTRAC_ROOT_PATH = "G:/My Drive/Chorus/Brunel/ecotrac/DEV/";
-}
 
-module.exports = exports = { getStateAndKeyFromFolderName }
+exports.getStateAndKeyFromFolderName = getStateAndKeyFromFolderName;
+exports.dinfo = dinfo;
+exports.dts = dts;
+
+
 
 const log = require("./ecotrac_logger").getLogger("_utils")
 
@@ -23,14 +22,51 @@ function getStateAndKeyFromFolderName(folderName){
     log(folderName, "pts", pts, state, key)
     switch(state ){
         case "ready":
-        case "processing":
-        case "processed":
+        case "scan_in_process":
+        case "scanning":
+        case "scanned":
+        case "scan_complete":
             break;
         default:    
             state = "notready";
             key = folderName;
     }
     
-    return {state, key };
+    return {state, key, folderName };
 
 }
+
+function dinfo( dt = new Date() ){
+    let utc = dt.toUTCString();
+    //console.log(sdt)
+    let hh= utc.substring(17,19)
+    let mm= utc.substring(20, 22)
+    let ss= utc.substring(23, 25)
+    let dinfo = {
+        // dd: utc.substring(5,7)
+        // ,
+        //mm
+        //,hh
+        //,
+        mm
+        ,ss
+        //,yyyy: utc.substring(12,16)
+        ,hhmm: hh+mm
+        , mmss: mm + ":" + ss
+        ,full: utc.substring(5, 25)
+        //,ts: mm + ":" + ss
+        ,utc
+        ,dts: dts(dt)
+    }
+    return dinfo;
+}
+
+/**
+ *  global utility function for timestamp string
+ * @returns string timestamp as yyyymmddhhmmss
+ */
+function dts(forDate = new Date() ){
+    
+    ss = forDate.toISOString().substring(0,19).replace(/[-T:]/g, "" );
+    return ss
+};

@@ -1,11 +1,13 @@
 {
     "folders":{
-        "incoming": "G:/My Drive/Laserware - video scanning request (File responses)/Upload the video files to be scanned (File responses)/rabbit - JohnRC.mp4",
+        "customerRootFolder": "G:/My Drive/Chorus/Brunel/ecotrac/ecotrac_T01/customers/",
+        "incoming": "G:/My Drive/Chorus/Brunel/ecotrac/ecotrac_T01/customers/",
         "processed": "",
         "preprocess": "",
         "workfolderA": "",
         "workfolderB": "",
-        "postprocess": ""
+        "postprocess": "",
+        "_keep1":  ""
     }
 
     , "videoTypes":{

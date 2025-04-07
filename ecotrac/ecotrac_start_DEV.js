@@ -1,5 +1,4 @@
 
-const global = require("./ecotrac_global");
 
 // This sets the global variable that points to the root folders for the ecotract
 // application data that is manipulated by the application. The data is placed
@@ -7,8 +6,17 @@ const global = require("./ecotrac_global");
 // sub-folders are made accessible to customers so that they can upload video 
 // files for processing.
 
-// CHANGE THIS TO POINT THE RUN TO DEV, TEST, or PROD locations
-global.RUN_MODE = "DEV"
-console.log( global.RUN_MODE )
+// CHANGE GLOBALS TO POINT THE RUN TO DEV, TEST, or PROD locations
+
+
+const eGlobal = require("./ecotrac_global");
+eGlobal.setRunMode("DEV");
+
 let starter = require("./ecotrac_starter")
-starter.start();
+
+console.log( "++++++++++++++++++++++++++++++++++++++++++++++++++++")
+console.log( "+++++++++++++++ APPLICATION STARTING +++++++++++++++")
+console.log( "++++++++++++++++++++++++++++++++++++++++++++++++++++")
+
+setImmediate( ()=>{ starter.start() } ) ;
+

@@ -6,7 +6,9 @@
 
 const global = require("./ecotrac_global");
 const utils = require("./ecotrac_utils");
-//const settings = require("./ecotrac_settings");
+const settings = require("./ecotrac_settings");
+const scanner = require("./ecotrac_scanner");
+
 const log = require("./ecotrac_logger").getLogger("ecotrac_orderFolder");
 /**
  * This is an example of the JSON for an orderFolder within a customer record
@@ -31,8 +33,11 @@ class OrderFolder{
         // Any other suffix is state notready
         let {state, key} = getStateAndKeyFromFolderName(folderName);
         this.state = state;
+        this.ownerEmail = email;
+        this.orderNumber = orderNumber? orderNumber : folderName ;
+        
         this.key = key;
-        this.folder = folderName;
+        this.folderName = folderName;
         this.orderGB = 25;
         this.fileCount = 0;
         this.fileGB = 0.0;
@@ -51,6 +56,15 @@ class OrderFolder{
         if(state = "ready"){
             // KICK OFF THE PROCESSING HERE
             log(">>>> Start Processing this folder, status is ready: ", this.folderName )
+            /**
+             * This is the python command to run the scanner 
+             * py brunel_ecotrac_scanner.py root:"G:\My Drive\Chorus\Brunel\ecotrac\ecotrac_T01\customers" mode:"T01" cust:"cust_charles@brunelbrands.com" fldr:"videosToScan.ready"
+             */
+            let ss = scanner.newScanner( this.customer, this );
+            ss.startScan();
+            log(">>>> SCAN STARTED ")
+            // let cmdString = "py brunel_ecotrac_scanner "
+            // let rootParam = 'root:"' + settings.customerFolderPath + xx
         };
     }
 

@@ -4,32 +4,39 @@
 // on a google drive so that it can accessed directly by Brunel staff. Some customer
 // sub-folders are made accessible to customers so that they can upload video 
 // files for processing.
-const global = require("./ecotrac_global");
-let run_mode = global.RUN_MODE 
-global.ECOTRAC_ROOT_PATH = "G:/My Drive/Chorus/Brunel/ecotrac/" + run_mode + "/";
+const eGlobal = require("./ecotrac_global");
+
+let run_mode = eGlobal.RUN_MODE ;
+// -------------------------------------------------------
 
 
+const log = require("./ecotrac_logger").getLogger("ecotrac_starter");
+log("### _starter MODULE LOADING")
 
-// CHANGE THIS TO POINT THE RUN TO DEV, TEST, and PROD locations
+module.exports.start = start;
+log ("### ecotrac_starter MODULE READY FOR RUN: Mode=" + run_mode );
+
 
 function start(){
         
     let settings = require("./ecotrac_settings");
 
     console.clear
-    console.log("*********************************************");
-    console.log("*");
-    console.log("*");
-    console.log("* ECOTRAC STARTED IN "+ run_mode + " MODE ***************");
-    console.log("*");
-    console.log("*");
-    console.log("*********************************************");
+    log("*********************************************");
+    log("*");
+    log("*");
+    log("* ECOTRAC STARTING IN ["+ run_mode + "] MODE ***");
+    log("*");
+    log("*");
+    log("*********************************************");
     
     root = require("./ecotrac_root");
     // root.start is an async function that kicks off the application load and runs
     // the application.
-    root.run(run_mode)
+    setImmediate( ()=>{ root.run(run_mode) } )
+
+    console.log("** Root about to run in " + run_mode + " . . . . ");
+    console.log("** with root path set to " + eGlobal.ECOTRAC_ROOT_PATH); 
 
 }
-module.exports.start = start;
-console.log ("### ecotrac_starter MODULE LOADED IN " + run_mode );
+

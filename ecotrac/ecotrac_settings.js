@@ -2,27 +2,32 @@
 * This module is used throughout the app to get settings that may change depending on the configuration of the system
  */
 
-
 const eGlobal = require("./ecotrac_global");
 const fs = require("fs");
 
+console.log("###> _settings Module loading");
 /**
  * The system level settings are stored in the file ecotracRootPath/settings.json
- * 
- * 
  */
 
 // The root path is an application global setting that points to the root folder containing
 // all the application data needed for operation. Normally
 if(!eGlobal.ECOTRAC_ROOT_PATH){
-  console.log("SETTINGS WARNING _ Root path must be set by ecotrac_run before loading settings");
-  console.log("SETTINGS WARNING _ Defaulting to DEV root path");
-  eGlobal.RUN_MODE = "DEV"
-  eGlobal.ECOTRAC_ROOT_PATH = "G:/My Drive/Chorus/Brunel/ecotrac/DEV/";
+  console.log("SETTINGS FAILED _ Root path must be set!");
+  process.exit(102)
 }
 
+const rootPath = eGlobal.ECOTRAC_ROOT_PATH 
 // Load the settings JSON file
-const settings = require( eGlobal.ECOTRAC_ROOT_PATH + "settings.json" );
+const settings = require( rootPath + "settings.json" );
+
+// Export the settings object so that it can be accessed directly in code if required
+settings.ecotracRootPath = rootPath;
+settings.customersFolderFullPath = rootPath + settings.paths.customersFolder;
+settings.get = get;
+settings.saveSettings = saveSettings;
+
+module.exports = exports = settings;
 
 function get(sPath){
     pp = sPath.split(".");
@@ -33,10 +38,6 @@ function get(sPath){
     } )
     return op
 };
-
-// Export the settings object so that it can be accessed directly in code if required
-settings.ecotracRootPath = eGlobal.ECOTRAC_ROOT_PATH;
-settings.get = get;
 
 function saveSettings(){
   sSettingsJSON = JSON.stringify( settings, null, 4 );
@@ -50,11 +51,6 @@ function saveSettings(){
 
 }
 
-
-settings.saveSettings = saveSettings;
-
-module.exports = settings;
 //const log = require("./ecotrac_logger").getLogger("ecotrac_settings")
-console.log("###> settings Module loading");
 console.log("~~~~~~~~~Settings\n", settings)
-console.log("+++> settings MODULE LOADED")
+console.log("+++> _settings MODULE LOADED")

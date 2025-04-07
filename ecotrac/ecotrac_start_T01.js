@@ -7,8 +7,15 @@
 
 
 // CHANGE THIS TO POINT THE RUN TO DEV, TEST, or PROD locations
-global.RUN_MODE = "TEST"
+
+const eGlobal = require("./ecotrac_global");
+eGlobal.setRunMode("T01");
 
 let starter = require("./ecotrac_starter")
 
-starter.start();
+console.log( "++++++++++++++++++++++++++++++++++++++++++++++++++++")
+console.log( "+++++++++++++++ APPLICATION STARTING +++++++++++++++")
+console.log( "++++++++++++++++++++++++++++++++++++++++++++++++++++")
+
+setImmediate( ()=>{ starter.start() } ) ;
+
