@@ -1,8 +1,8 @@
 {
     "global":{
   
-        "base_path" : "G:/My Drive/Chorus/Brunel/ecotrac/"
-        , "default_mode": "DEV"  
+        "base_path" : "J:/JohBenRivCarGoogleDrive/Chorus/Brunel/ecotrac/" 
+        , "default_mode": "T01"  
     }
     , "python":{
         
