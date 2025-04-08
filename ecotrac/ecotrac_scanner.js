@@ -50,15 +50,15 @@ class Scanner{
         // cust = the customers folder under the root
         // fldr = the folder containing videos to be scanned
         let me = this;
-        console.log(">> StartScan ")
-        let mode = 'MODE:"' + runMode + '"';
-        let root = 'ROOT:"' + settings.customersFolderFullPath + '"'
-        let cust = 'CUST:"' + this.customer.custFolder + '"';
-        console.log( { mode, root, cust })
+        this.log(">> StartScan ")
+        let mode = 'MODE:' + runMode;
+        let root = 'ROOT:' + settings.customersFolderFullPath
+        let cust = 'CUST:' + this.customer.custFolder;
+        this.log( { mode, root, cust })
         let scanFolder = this.folder.folderName;
 
         if(scanFolder.slice(-6) !== ".ready"){
-            console.log("ERROR: The folder to be scanned must end with .ready")
+            this.log("ERROR: The folder to be scanned must end with .ready")
             return false;
         }
 
@@ -74,19 +74,25 @@ class Scanner{
             this.log( newFolderPath );
             fs.renameSync(oldFolderPath, newFolderPath);
         } catch(e){
-            console.log ("ERROR: When trying to rename folder before scan");
+            this.log ("ERROR: When trying to rename folder before scan");
             //return false;
         }
 
         
-        let fldr = 'FLDR:"' + this.folder.folderName + '"';
+        let fldr = "FLDR:" + newFolderName ;
 
 
         let proc = this.pythonProcess = spawn('py', [pathToScannerScript, mode , root, cust, fldr], {cwd: pathToScannerCWD } );
 
         proc.stdout.on('data', (data) => {
-            console.log("scanner" + me.id, "FromPython:",  data );
+            let msg = data.toString()
+
+            this.log("|py|",  msg );
+
+            
+
         });
+
         this.folder.scanInProgress = true;
 
 
@@ -96,8 +102,9 @@ class Scanner{
         //report = data.split(":");
         this.log( data )
     }
+
     log(...args){
-        console.log(">scanner" + this.id, ...args )
+        console.log(">scan " + this.id, ...args )
     }
 }
 

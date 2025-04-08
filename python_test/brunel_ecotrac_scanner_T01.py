@@ -1,7 +1,7 @@
 import sys
 
-def msg(text):
-    print("MSG:" + text)
+def msg(*items):
+    print(*items)
     sys.stdout.flush()
 
 import cv2
@@ -18,7 +18,7 @@ from os.path import isfile, join
 from datetime import datetime
 
 args = sys.argv
-print("args", args)
+msg("py args", args)
 sys.stdout.flush()
 
 rtps = {}
@@ -29,26 +29,26 @@ for ix in range(1, len(args)):
     try:
         arg = args[ix]
         arg = arg.replace("\\", "/")
-        #print("arg[" + ix + "]=" + arg )
+        #msg("arg[" + ix + "]=" + arg )
         kvp = arg.split(":", 1)
-        key=kvp[0]
+        key=kvp[0].lower()
         val=kvp[1]
         rtps[key]=val
     except:
         val=""
 
-print("Run time parameters: ", rtps)
+msg("Run time parameters: ", rtps)
 
 targetMode = ""
 targetRoot = ""
 targetCustomer = ""
 fldr = ""
-disp = True
+disp = False
 try:
     if(rtps["disp"]):
         disp = rtps["disp"]=="Y"
 except:
-    disp = True
+    disp = False
 
 try:
     targetMode = rtps["mode"] 
@@ -68,7 +68,7 @@ if not targetVideoFolder.endswith(".scanning"):
 targetFolderFullPath = join( targetRoot, targetCustomer, targetVideoFolder )
 
 
-print( "Target folder: ", targetFolderFullPath)
+msg( "Target folder: ", targetFolderFullPath)
 sys.stdout.flush()
 #
 #  Generating the movements file from the input:
@@ -83,18 +83,18 @@ sys.stdout.flush()
 
 showDisplay = disp
 
-print( "\n ##################################################### Started at", datetime.now().strftime("%H:%M") )
+msg( "\n ##################################################### Started at", datetime.now().strftime("%H:%M") )
 sys.stdout.flush()
 try:
     filesToProcess = [f for f in listdir(targetFolderFullPath) if isfile(join(targetFolderFullPath,  f)) and ( f.endswith(".mp4") ) and not ( f.endswith(".scanned.mp4") ) ]
 except:
-    print("No folder was found in the location specified")
+    msg("No folder was found in the location specified")
     msg("ERROR=Folder not found for scanner")
     msg("END=105")
     exit(105)
 
 filesToProcess.sort()
-print(filesToProcess)
+msg(filesToProcess)
 sys.stdout.flush()
 if len(filesToProcess) == 0:
     msg("ERROR=No video files in folder to be scanned")
@@ -128,7 +128,7 @@ element = cv2.getStructuringElement(0, (11, 11), (5, 5))
 
 scanNum = 0
 
-#print("");
+#msg("");
 maxContours = 0
 frameNumber = 0
 outputFrameCount = 0
@@ -146,10 +146,10 @@ heightScaleFactor = 1
 
 for videoFileName in filesToProcess:
     scanNum += 1
-    print("Scan ", scanNum, ": ", videoFileName)
+    msg("Scan ", scanNum, ": ", videoFileName)
     
     videoSourceFullPath = join( targetFolderFullPath , videoFileName )
-    print(" -Path", videoSourceFullPath )
+    msg(" -Path", videoSourceFullPath )
     sys.stdout.flush()
     videoReader = brunel_ecotrac_classesA.VideoReader(videoSourceFullPath)
     video = videoReader.video
@@ -160,8 +160,8 @@ for videoFileName in filesToProcess:
         
         reportOutputFullPath = join( targetFolderFullPath, targetVideoFolder.replace(".scanning", ".scanreport.txt" ))
         
-        print("Video output file: ", videoOutputFullPath)
-        print("Report output file: ", reportOutputFullPath)
+        msg("Video output file: ", videoOutputFullPath)
+        msg("Report output file: ", reportOutputFullPath)
 
         #We always output 1280x720, scaling the video to that size whatever the input frame size.
         outputFrameWidth = 1280 
@@ -173,14 +173,14 @@ for videoFileName in filesToProcess:
         videoOut = videoWriter.video
         
         outputFrameNumber = 0
-        print("videoWriter has been created")
+        msg("videoWriter has been created")
         sys.stdout.flush()
     
     #Caclulate the scaling factor being the ratio of output to input frame sizes
     widthScaleFactor = outputFrameWidth / videoReader.frameWidth
     heightScaleFactor = outputFrameHeight / videoReader.frameHeight
-    print("frameScaleFactor is set to", widthScaleFactor, heightScaleFactor)
-    print("Output frame size " + str(outputFrameWidth) + "x" + str(outputFrameHeight) )
+    msg("frameScaleFactor is set to", widthScaleFactor, heightScaleFactor)
+    msg("Output frame size " + str(outputFrameWidth) + "x" + str(outputFrameHeight) )
 
     # Now ready to process this input video file
     isFirstFrame = True
@@ -188,7 +188,7 @@ for videoFileName in filesToProcess:
     # Note that the Brunel ecotrac reader reads in the first frame on opening and uses this as the
     # reference frame, if comparison is to reference frame rather than to previous frame.
     frameNumber = 0
-    print("Start of video +++++++++++++++++++++++++++++++++")
+    msg("Start of video +++++++++++++++++++++++++++++++++")
     sys.stdout.flush()
     while True:
         status, frame = video.read()
@@ -205,7 +205,7 @@ for videoFileName in filesToProcess:
                 #     # Open the output video taking the output size from the incoming scaled frame size 
 
                 #     # First, get details of the frame size from its shape property
-                #     print("Frame shape from first frame:", frame.shape)
+                #     msg("Frame shape from first frame:", frame.shape)
                 #     fheight, fwidth, fchannels = frame.shape
 
                 #     # Create the video writer output using the same fps and frame size as the input
@@ -239,7 +239,7 @@ for videoFileName in filesToProcess:
         if len(contourList) > maxContours:
             maxContours = len(contourList)
 
-        print( "\rFrame:", frameNumber, outputFrameCount, "Countours:", len(contourList), " Max:", maxContours, "           ", end="\r" )
+        #msg( "\rFrame:", frameNumber, outputFrameCount, "Countours:", len(contourList), " Max:", maxContours, "           " )
 
 
         #
@@ -278,7 +278,7 @@ for videoFileName in filesToProcess:
                 nearestBox = None
                 nearestShift = 10000000
                 for pbox in prevBoxes:
-                    #print("Shift calc:", pbox.report(), box.report() )
+                    #msg("Shift calc:", pbox.report(), box.report() )
                     xt = (pbox.t-box.t) 
                     xl = (pbox.l-box.l)
                     xb = (pbox.b-box.b)
@@ -288,16 +288,16 @@ for videoFileName in filesToProcess:
                     boxshift = xtl + xbr
 
                     if boxshift < 20  and boxshift < nearestShift:
-                        #print("pbox, box:", pbox.report(), box.report() )
-                        #print( "SHIFT(t,l,b,r):(", xt, xl, xb, xr, ")")
-                        #print( "ROOT SQUARES( tl, br ):(", xtl, xbr, "}")
-                        #print("boxshift:", boxshift)
+                        #msg("pbox, box:", pbox.report(), box.report() )
+                        #msg( "SHIFT(t,l,b,r):(", xt, xl, xb, xr, ")")
+                        #msg( "ROOT SQUARES( tl, br ):(", xtl, xbr, "}")
+                        #msg("boxshift:", boxshift)
                         nearestBox = pbox
                         nearestShift = boxshift
 
                 if  nearestShift < shiftLimit :
-                    #print("\rBox shift", nearestShift, box.report(), "<<", nearestBox.report(), "                            ")
-                    #print("")
+                    #msg("\rBox shift", nearestShift, box.report(), "<<", nearestBox.report(), "                            ")
+                    #msg("")
                     box.t = nearestBox.t
                     box.l = nearestBox.l
                     box.b = nearestBox.b
@@ -323,7 +323,7 @@ for videoFileName in filesToProcess:
                     # if the countdown is complete, start skipping
                     if skipCountDown == 0:
                         skipping = True
-                        print(" SKIPPING STARTED at frame ", frameNumber)
+                        msg(" SKIPPING STARTED at frame ", frameNumber)
                 else:
                     # We are not skipping and there's no countdown, so
                     # this must be the first frame with no movement, so
@@ -340,13 +340,13 @@ for videoFileName in filesToProcess:
                     skipCountUp +=1
                     if skipCountUp > 4:
                         skipping = False
-                        print(" SKIPPING stopped at frame ", frameNumber)
+                        msg(" SKIPPING stopped at frame ", frameNumber)
                         skipCountDown = 0
                         skipCountUp = 0
                 else: 
                     # More than one box on the frame so stop skipping
                     skipping = False
-                    print(" SKIPPING stopped at frame ", frameNumber)
+                    msg(" SKIPPING stopped at frame ", frameNumber)
                     skipCountDown = 0
                     skipCountUp = 0
         
@@ -369,11 +369,11 @@ for videoFileName in filesToProcess:
         # reset the firstTime flag
         isFirstFrame = False
 
-    print("End of video ++++[" + videoFileName + "]++++++ at frame number:", frameNumber)
+    msg("End of video ++++[" + videoFileName + "]++++++ at frame number:", frameNumber)
     # Close the input video file
     video.release()
 
-print( "\n ##################################################### Finished at", datetime.now().strftime("%H:%M") )
+msg( "\n ##################################################### Finished at", datetime.now().strftime("%H:%M") )
 #video.release()
 videoOut.release()
 msg("END=000")
