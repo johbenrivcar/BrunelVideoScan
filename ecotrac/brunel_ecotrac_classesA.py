@@ -1,7 +1,33 @@
 import cv2
 import sys
 import brunel_ecotrac_settings
+import logging
+import os
 
+
+class Log:
+    def __init__(self, orderFolderPath):
+        self.logger = logging.getLogger('ecotrac')
+        self.logPath = orderFolderPath
+        
+        # if not os.path.exists(self.logPath):
+        #     os.makedirs(LOG_DIR)
+        fileHandler = logging.FileHandler("{0}/{1}.txt".format(orderFolderPath, "ScanReport"))
+        self.logger.addHandler(fileHandler)
+
+        self.logger.setLevel(logging.DEBUG)
+
+    def log(self, info):
+        self.logger.debug(info)
+
+
+myLog = None
+
+def getLogger( orderFolderPath = None ):
+    global myLog
+    if myLog == None:
+        myLog = Log(orderFolderPath)
+    return myLog;
 
 class Colours:
     def __init__(self):
@@ -62,7 +88,7 @@ class VideoReader:
     def __init__(self,  videoFileName):
         # fileName, fileSeqNumber, fileDTS, fileFrameRate, fileCodec, fileFrameCount, 
         self.fileName = videoFileName
-        print(" -- opening VideoReader --------------------------")
+        #print(" -- opening VideoReader --------------------------")
         self.video = video = cv2.VideoCapture(videoFileName)
 
         #TO DO - handle file open error here
@@ -91,7 +117,7 @@ class VideoReader:
         self.frameHeight = frameHeight
         self.frameWidth = frameWidth
         self.frameSize = ( frameWidth, frameHeight )
-
+        
         # Generate a report of this input vidoe to the console.
         self._print()
     
@@ -101,10 +127,11 @@ class VideoReader:
         return ffr
 
     def _print(self):
-        print("************ videoReaderInformation:", self.fileName)
-        print("* Frames per second:", self.fps, "(", self.mspf, "ms per frame)")
-        print("* Frame width x height: ", self.frameWidth, "x", self.frameHeight  )
-        print("********************************************************")
+        ll = getLogger()
+        ll.log("************ videoReaderInformation: " + self.fileName)
+        ll.log("* Frames per second:" + str( self.fps ) +  "(" + str( self.mspf) + "ms per frame)")
+        ll.log("* Frame width x height: "+ str( self.frameWidth) +  "x"+ str(  self.frameHeight   ))
+        ll.log("********************************************************")
         
         
 
@@ -130,8 +157,8 @@ class VideoWriterMP4:
         self.frameHeight = frameSize[1]
         self._print()
         
-    def write(frame):
-        video.write(frame)
+    def write(self, frame):
+        self.video.write(frame)
 
     def _print(self):
         print("************ videoWriter Information:", self.fileName, "*****************")

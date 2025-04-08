@@ -1,11 +1,9 @@
 # Get the sys library for stdOut abd run-time
 # parameters
 import sys
-
 ####################################
-# This function is used instead of print() because we need to 
-# make sure they are flushed out to be sent to stdOut, which
-# is being monitored by the controlling nodejs process.
+# This function is used to send messages through stdOut to the  
+# controlling nodejs process.
 def msg(*items):
     print(*items)
     sys.stdout.flush()
@@ -104,6 +102,9 @@ if not targetVideoFolder.endswith(".scanning"):
 
 # The full path to the folder is the combination of three parameters
 targetFolderFullPath = join( targetRoot, targetCustomer, targetVideoFolder )
+
+
+logger = brunel_ecotrac_classesA.getLogger(targetFolderFullPath)
 
 msg( "Target folder: ", targetFolderFullPath)
 
@@ -448,9 +449,10 @@ for videoFileName in filesToProcess:
     # Close the input video file
     video.release()
 
-msg( "\n ##################################################### Finished at", datetime.now().strftime("%H:%M") )
+msg( "##################################################### Finished at", datetime.now().strftime("%H:%M") )
 #video.release()
 videoOut.release()
+
 msg("END:000")
 #cv2.waitKey(0)
 #cv2.destroyAllWindows()
