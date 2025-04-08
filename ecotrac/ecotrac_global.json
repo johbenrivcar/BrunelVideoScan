@@ -1,0 +1,24 @@
+{
+    "global":{
+  
+        "base_path" : "G:/My Drive/Chorus/Brunel/ecotrac/"
+        , "default_mode": "DEV"  
+    }
+    , "python":{
+        
+        "videoTypes":{
+            "mp4": { "fourcc": ""} 
+            , "ts": { "fourcc": ""}
+            , "avi": { "fourcc": ""}
+    
+        }
+        , "scanning":{
+            "pythonScriptName": "brunel_ecotrac_scanner_[MODE].py",
+            "maxFrameSize": 1080,
+            "snapTo": 20,
+            "skipAfter": 10,
+            "shiftLimit": 100,
+            "sensitivity": 5
+        }
+    }
+}

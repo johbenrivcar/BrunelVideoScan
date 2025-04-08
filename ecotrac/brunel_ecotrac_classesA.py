@@ -1,35 +1,61 @@
 import cv2
 import sys
-import settings
+import brunel_ecotrac_settings
 
 
 class Colours:
     def __init__(self):
         self.white = (255,255,255)
+        self.grey = (150,150,150)
         self.red = (255, 0, 0)
         self.green = (0, 255, 0)
-        self.blue = (0, 255, 0)
+        self.blue = (0, 0, 255)
 
     def mix(self, c1, c2 ):
         return ( round((c1[0]+c2[0])/2), round((c1[1]+c2[1])/2) , round((c1[2]+c2[2])/2))
 
 COLOURS = Colours()       
 
+# This class draws a dot on the frame centered at a given position  (x,y)
 class Dot:
     def __init__(self, centre, radius):
         self.x = centre[0]
         self.y = centre[1]
         self.centre = centre
         self.radius = 10 if radius==None else radius
-        self.colour = COLOURS.white
+        self.colour = clr = COLOURS.white
+        decayFactor = 240/60
+        self.decayOn = False
 
-    def forBox(self, box):
-        self.x = box.l + int( (box.h+1)/2 )
+    def positionAtBox(self, box):
+        self.x = x = box.l + int( (box.h+1)/2 )
         
-        self.y = box.r + int( (box.h+1)/2 )
+        self.y = y = box.r + int( (box.h+1)/2 )
         self.centre = (x, y);
+    
+    def startDecay(self):
+        clr = self.colour
+        self.decayCount = dc = 60 # decays over 60 frames (2 secs?)
+        self.decayStep = ( clr[0]/dc, clr[1]/dc, clr[2]/dc )
+        self.decayOn = True
+
     def drawInFrame(self, frame):
+        if self.decayOn:
+            if self.stopped:
+                return False;
+            clr = self.colour  
+            ds = self.decayStep  
+            newClr = ( clr[0] - ds[0] , clr[1]- ds[1], clr[2]-ds[2] )
+            self.colour = newClr
         cv2.circle( frame, self.centre, self.radius, self.colour, cv2.FILLED, cv2.LINE_8)
+        self.decayCount -=1
+        if self.decayCount < 1:
+            self.stopped = True;
+            return False
+        return True
+
+
+
 
 
 class VideoReader:

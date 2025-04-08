@@ -21,6 +21,7 @@ const rootPath = eGlobal.ECOTRAC_ROOT_PATH
 // Load the settings JSON file
 const settings = require( rootPath + "settings.json" );
 
+
 // Export the settings object so that it can be accessed directly in code if required
 settings.ecotracRootPath = rootPath;
 settings.customersFolderFullPath = rootPath + settings.paths.customersFolder;

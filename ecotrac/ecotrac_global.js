@@ -6,12 +6,15 @@
  * subfolder of ecotract containing the run data and files for a particular
  * run mode (like Dxx.. development, Txx... testing, and Pxx... production)"
  */
+const json = require("./ecotrac_global.json")
 const utils = require("./ecotrac_utils");
 const dts = utils.dts;
 
-const basePath = "G:/My Drive/Chorus/Brunel/ecotrac/";
-const runMode = "DEV";
+const basePath = json.global.base_path ;
+const runMode = json.global.default_mode ;
 const rootPath = basePath + "ecotrac_" + runMode + "/";
+let inProd = (runMode.substring(0,1).toUpperCase == "P")
+
 /**
  * By convention, global settings names are CAPITALISED and considered invariant
  */
@@ -22,8 +25,9 @@ module.exports = exports = {
     , ECOTRAC_BASE_PATH: basePath 
     // Root location for the data folders corresponding to a specific RUN_MODE
     , ECOTRAC_ROOT_PATH: rootPath
-    , IN_TEST: true
-    , IN_PROD: false
+    , IN_PROD: inProd   
+    , IN_TEST: !inProd
+    , python: json.python
     , dts
     , setRunMode
 };
@@ -36,12 +40,14 @@ function setRunMode(mode){
         console.log("_global: Attempt to set run mode twice - not allowed (" + mode + ")");
         process.exit(101);
     };
-    bINIT = true;
 
+    bINIT = true;
+    inProd = (mode.substring(0,1).toUpperCase()=="P")
     console.log("_global: Setting run mode to " + mode + "---------------");
+
     exports.RUN_MODE = mode;
-    exports.IN_PROD = (mode.substring(0,1).toUpperCase()=="P"? true : false) ;
-    exports.IN_TEST = !exports.IN_PROD;
+    exports.IN_PROD = inProd ;
+    exports.IN_TEST = !inProd ;
     exports.ECOTRAC_ROOT_PATH = basePath + "ecotrac_" + mode + "/";
     console.log("global: ", exports );
     console.log("--------------------------------------------------------");

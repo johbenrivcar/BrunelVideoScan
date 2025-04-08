@@ -19,9 +19,16 @@ const runMode = eGlobal.RUN_MODE;
 const settings = require("./ecotrac_settings");
 const events = require("./ecotrac_events");
 
-const pathToScannerScript = "D:/GitHubRepositories/BrunelVideoScan/python_test/brunel_ecotrac_scanner_" + runMode + ".py"
-const pathToScannerCWD = "D:/GitHubRepositories/BrunelVideoScan/python_test/"
+const scannerName = eGlobal.python.scanning.pythonScriptName.replace("[MODE]", runMode).replace(/\\/g, "/")
+
+
+const pathToScannerCWD = __dirname.replace(/\\/g, "/") ;
+console.log("CWD", pathToScannerCWD)
+
+const pathToScannerScript = pathToScannerCWD + "/" + scannerName
 console.log("Path to scanner " + pathToScannerScript )
+
+
 const spawn = require("child_process").spawn;
 
 
@@ -69,13 +76,14 @@ class Scanner{
         let newFolderPath = settings.customersFolderFullPath + this.customer.custFolder + "/"  + newFolderName;
         
         try{
-            this.log( "Rename");
+            this.log( "Attempting rename");
             this.log( oldFolderPath );
             this.log( newFolderPath );
             fs.renameSync(oldFolderPath, newFolderPath);
+
         } catch(e){
             this.log ("ERROR: When trying to rename folder before scan");
-            //return false;
+            return false;
         }
 
         
@@ -85,16 +93,38 @@ class Scanner{
         let proc = this.pythonProcess = spawn('py', [pathToScannerScript, mode , root, cust, fldr], {cwd: pathToScannerCWD } );
 
         proc.stdout.on('data', (data) => {
-            let msg = data.toString()
+            let msg = data.toString();
 
-            this.log("|py|",  msg );
+            this.log("|py|=[" + msg + "]=" );
+
+            if(msg.substr(0, 4) == "END:"){
+                this.log("Scanning process completed");
+
+                oldFolderPath = newFolderPath;
+                newFolderPath = newFolderPath.replace(".scanning", ".processed");
+                
+                try{
+                    this.log( "Attempting folder rename to .processed status");
+                    this.log( oldFolderPath );
+                    this.log( newFolderPath );
+                    fs.renameSync(oldFolderPath, newFolderPath);
+                    this.folder.scanInProgress = false;
+
+                } catch(e){
+                    this.log ("ERROR: When trying to rename folder after scan");
+
+                }
+        
+
+
+            }
 
             
 
         });
 
         this.folder.scanInProgress = true;
-
+        return true;
 
     }
 

@@ -1,10 +1,13 @@
 
 import json
 
+settingsJSON = {}
 
-global settingsJSON
-with open('settings.json') as sss:
-    settingsJSON = json.load(sss)
+# Read in the global json file and get the python settings
+with open('ecotrac_global.json') as sss:
+    gg = json.load(sss)
+    settingsJSON = gg["python"]
+
 
 print("Settings", settingsJSON )
 

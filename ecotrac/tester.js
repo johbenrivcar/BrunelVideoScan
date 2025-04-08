@@ -1,7 +1,5 @@
 let ddd = new Date()
 
+let path = require.resolve("./tester.js")
 
-const log = require( "./logger" ).getLogger("tester");
-
-
-log("This is a test log ", "message" )
+console.log(path)

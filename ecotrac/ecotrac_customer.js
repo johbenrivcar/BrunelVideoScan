@@ -264,17 +264,10 @@ class ecoCustomer{
         // we need to see if the status has changed to "ready" from some other state
         let orderFolder = this.orderFolders[itemKey];
         if(!orderFolder){
-            orderFolder = {
-                state: newState
-                , key: itemKey
-                , folderName: folder
-                , orderGB: 25 // default order size
-                , fileCount: 0
-                , fileGB: 0
-                , totalVideoMins: 0.0
-                , scanCpuSecs: 0
-                , scanTimeTaken: 0
-            }
+            orderFolder = newOrderEntry();
+            orderFolder.state= newState
+            orderFolder.key= itemKey
+            orderFolder.folderName= folder
             this.orderFolders[itemKey] = orderFolder;
             return;
         }

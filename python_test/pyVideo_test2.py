@@ -1,7 +1,7 @@
 import cv2
 import math
 import brunel_ecotrac_classesA
-import settings
+import ecotrac.brunel_ecotrac_settings as brunel_ecotrac_settings
 from datetime import datetime
 
 
@@ -18,15 +18,15 @@ from datetime import datetime
 #
 
 # GET SETTINGS ######################################################
-getSetting = settings.getSetting
+getSetting = brunel_ecotrac_settings.getSetting
 # ==== FOLDER settings
 incomingFolder = getSetting("folders.incoming")
 print("Incoming folder is: ", incomingFolder )
 
 # ==== Scanning settings
-snapTo = settings.getSetting("scanning.snapTo")
-skipAfter = settings.getSetting("scanning.skipAfter")
-shiftLimit = settings.getSetting("scanning.shiftLimit")
+snapTo = brunel_ecotrac_settings.getSetting("scanning.snapTo")
+skipAfter = brunel_ecotrac_settings.getSetting("scanning.skipAfter")
+shiftLimit = brunel_ecotrac_settings.getSetting("scanning.shiftLimit")
 #
 # ****************
 
