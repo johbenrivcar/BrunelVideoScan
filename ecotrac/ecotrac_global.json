@@ -1,18 +1,42 @@
 {
+<<<<<<< Updated upstream
     "global":{
   
         "base_path" : "J:/JohBenRivCarGoogleDrive/Chorus/Brunel/ecotrac/" 
         , "default_mode": "T01_Corinth"  
     }
+=======
+
+    "Comment10": "The global section contains settings used by node and the python scanner script"
+    , "Comment11": "The gDrive paths must be set for each mode_server combination because there are gDrive mapping differences"
+    ,"global":{
+        "default_mode": "T01_Corinth"  
+        ,"base_path" : "G:/My Drive/Chorus/Brunel/ecotrac/" 
+        ,"gDrive_path":{
+            "DEV": "G:/My Drive/Chorus/Brunel/ecotrac/ecotrac_DEV/"
+            , "T01": "G:/My Drive/Chorus/Brunel/ecotrac/ecotrac_T01/"
+            , "B01": "G:/My Drive/Chorus/Brunel/ecotrac/ecotrac_B01/"
+            ,"DEV_Desdemona": "G:/My Drive/Chorus/Brunel/ecotrac/ecotrac_DEV_Desdemona/"
+            ,"T01_Desdemona": "G:/My Drive/Chorus/Brunel/ecotrac/ecotrac_T01_Desdemona/"
+            ,"B01_Corinth": "J:/My Drive/Chorus/Brunel/ecotrac/ecotrac_B01_Corinth/"
+            ,"P01_Corinth": "J:/My Drive/Chorus/Brunel/ecotrac/ecotrac_P01_Corinth/"
+        }
+
+            
+    }
+    , "Comment20": "The python section contains settings used by the python scanner script"
+>>>>>>> Stashed changes
     , "python":{
-        
-        "videoTypes":{
+        "Comment30": "These settings are not used yet, currently only mp4 is supported"
+        ,"videoTypes":{
             "mp4": { "fourcc": ""} 
             , "ts": { "fourcc": ""}
             , "avi": { "fourcc": ""}
     
         }
+        , "Comment40":"These parameters are used by Node and also Python scripts to adjust scanning details"
         , "scanning":{
+            "Comment50": "We plan to eliminate mode from the python script name because it can be passed as env variable",
             "pythonScriptName": "brunel_ecotrac_scanner_[MODE].py",
             "maxFrameSize": 1080,
             "snapTo": 20,
