@@ -62,16 +62,22 @@ class ecoCustomer{
         return this;
     };
 
-    /**
-     * runs through all the order folders in the customers folder to 
+    /****************************************************************** updateOrderFolders
+     * 
+     * runs through all the order folders in the customer's work folder to 
      * update the customer record with latest information.
+     * 
      */
     updateOrderFolders(){
         log("Scanning order folders for " + this.custFolder )
+
+        // Construct the path to customer's work folder
         let fullFolderPath = customersFolderFullPath  + this.custFolder;
 
+        // Get a list of all the sub-folders in the customer's work folder
         let orderFolders = fs.readdirSync( fullFolderPath );
 
+        
         orderFolders.forEach( (folder, ix)=>{
             
             let stat = fs.statSync( fullFolderPath + "/" + folder );
