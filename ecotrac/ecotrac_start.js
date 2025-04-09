@@ -19,5 +19,7 @@ console.log( '+++++++++++++++ APPLICATION STARTING +++++++++++++++')
 console.log( `++ ${ new Date() } ++`)
 console.log( "++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
+process.exit(233)
+
 setImmediate( ()=>{ starter.start() } ) ;
 

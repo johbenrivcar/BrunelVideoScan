@@ -1,8 +1,17 @@
 {
     "global":{
-  
-        "base_path" : "J:/JohBenRivCarGoogleDrive/Chorus/Brunel/ecotrac/" 
-        , "default_mode": "T01_Corinth"  
+        "default_mode": "T01_Corinth"  
+        ,"base_path" : "G:/My Drive/Chorus/Brunel/ecotrac/" 
+        ,"gDrive_path":{
+            "DEV": "G:/My Drive/Chorus/Brunel/ecotrac/ecotrac_DEV/"
+            ,"DEV_Desdemona": "G:/My Drive/Chorus/Brunel/ecotrac/ecotrac_DEV_Desdemona/"
+            ,"T01_Desdemona": "G:/My Drive/Chorus/Brunel/ecotrac/ecotrac_T01_Desdemona/"
+            ,"B01_Corinth": "J:/My Drive/Chorus/Brunel/ecotrac/ecotrac_B01_Corinth/"
+            ,"P01_Corinth": "J:/My Drive/Chorus/Brunel/ecotrac/ecotrac_P01_Corinth/"
+            }
+
+            }
+        }
     }
     , "python":{
         
