@@ -80,11 +80,23 @@ class Dot:
             return False
         return True
 
-
+class videoFrame:
+    frame = None
+    monoFrame = None
+    prevDiffs = None
+    nextDiffs = None
+    frameNumber = 0
+    
 
 
 
 class VideoReader:
+    currentFrameNumber = 0
+    currentFrame = None
+    prevFrame = None
+    prevFrameList = []
+    fwdFrameList = []    
+
     def __init__(self,  videoFileName):
         # fileName, fileSeqNumber, fileDTS, fileFrameRate, fileCodec, fileFrameCount, 
         self.fileName = videoFileName
@@ -124,6 +136,8 @@ class VideoReader:
     # Function to read the next frame from the video
     def getFrame(self):
         ffr = self.video.read()
+        # Add special information to the frame
+
         return ffr
 
     def _print(self):

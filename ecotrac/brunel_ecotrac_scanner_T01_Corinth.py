@@ -117,6 +117,19 @@ msg( "Target folder: ", targetFolderFullPath)
 #       an information panel that gives the location details of the movment that was found
 #     
 
+# this function checks if a file is scannable
+# Currently .mp4 and .avi only
+def isScannable(f): # ====================================
+    ff = f.lower()
+    if ff.endswith(".scanned.mp4"):
+        return False
+    if ff.endswith(".mp4"):
+        return True
+    if ff.endswith(".avi"):
+        return True
+    return False
+# =========================================================
+
 
 showDisplay = disp
 
@@ -125,7 +138,7 @@ sys.stdout.flush()
 try:
     # Get the list of video files to be processed
     # They must all end in .mp4 but not .scanned.mp4 (which is the output file of the scanning process)
-    filesToProcess = [f for f in listdir(targetFolderFullPath) if isfile(join(targetFolderFullPath,  f)) and ( f.lower().endswith(".mp4") ) and not ( f.lower().endswith(".scanned.mp4") ) ]
+    filesToProcess = [f for f in listdir(targetFolderFullPath) if isfile(join(targetFolderFullPath,  f)) and isScannable(f) ]
 except:
     # If that failed report it back to the nodejs controller
     msg("No folder was found in the location specified")
