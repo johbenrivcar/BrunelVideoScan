@@ -1,12 +1,5 @@
 {
-<<<<<<< Updated upstream
-    "global":{
-  
-        "base_path" : "J:/JohBenRivCarGoogleDrive/Chorus/Brunel/ecotrac/" 
-        , "default_mode": "T01_Corinth"  
-    }
-=======
-
+    
     "Comment10": "The global section contains settings used by node and the python scanner script"
     , "Comment11": "The gDrive paths must be set for each mode_server combination because there are gDrive mapping differences"
     ,"global":{
@@ -24,8 +17,6 @@
 
             
     }
-    , "Comment20": "The python section contains settings used by the python scanner script"
->>>>>>> Stashed changes
     , "python":{
         "Comment30": "These settings are not used yet, currently only mp4 is supported"
         ,"videoTypes":{
