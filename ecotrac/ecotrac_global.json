@@ -1,20 +1,49 @@
 {
     "global":{
-        "default_mode": "T01_Corinth"  
-        ,"base_path" : "G:/My Drive/Chorus/Brunel/ecotrac/" 
-        ,"gDrive_path":{
-            "DEV": "G:/My Drive/Chorus/Brunel/ecotrac/ecotrac_DEV/"
-            ,"DEV_Desdemona": "G:/My Drive/Chorus/Brunel/ecotrac/ecotrac_DEV_Desdemona/"
-            ,"T01_Desdemona": "G:/My Drive/Chorus/Brunel/ecotrac/ecotrac_T01_Desdemona/"
-            ,"B01_Corinth": "J:/My Drive/Chorus/Brunel/ecotrac/ecotrac_B01_Corinth/"
-            ,"P01_Corinth": "J:/My Drive/Chorus/Brunel/ecotrac/ecotrac_P01_Corinth/"
-            }
+        "comment10":"global section is used by both node and python scripts",
 
-            
-        }
-    
-    , "python":{
+        "default_mode": "T01_Corinth" ,
         
+        "config_list":{
+            "D01_Desdemona+Desdemona":{ 
+                "mode": "DEV",
+                "basePath": "G:/My Drive/Chorus/Brunel/ecotrac/",
+                "rootFolder": "ecotrac_D01_Desdemona/",
+                "gitBranch": "DEV_Desdemona",
+                "server": "Desdemona"
+            }
+            ,"T01_Desdemona+Desdemona":{ 
+                "mode": "TEST",
+                "basePath": "G:/My Drive/Chorus/Brunel/ecotrac/",
+                "rootFolder": "ecotrac_T01_Desdemona/",
+                "gitBranch": "T01_Desdemona",
+                "server": "Desdemona"
+            }
+            ,"B01_Corinth+Corinth":{ 
+                "mode": "BETA",
+                "basePath": "J:/My Drive/Chorus/Brunel/ecotrac/",
+                "rootFolder": "ecotrac_B01_Corinth/",
+                "gitBranch": "B01_Corinth",
+                "server": "Corinth"
+            }
+            ,"T01_Corinth+Corinth":{ 
+                "mode": "TEST",
+                "basePath": "J:/My Drive/Chorus/Brunel/ecotrac/",
+                "rootFolder": "ecotrac_T01_Corinth/",
+                "gitBranch": "T01_Corinth",
+                "server": "Corinth"
+            }
+            ,"P01_Corinth+Corinth":{ 
+                "mode": "PROD",
+                "basePath": "J:/My Drive/Chorus/Brunel/ecotrac/",
+                "rootFolder": "ecotrac_P01_Corinth/",
+                "gitBranch": "P01_Corinth",
+                "server": "Corinth"
+            }
+        }
+    }, 
+    "python":{
+        "comment20":"python section gives default parameters for processing video files in python script",
         "videoTypes":{
             "mp4": { "fourcc": ""} 
             , "ts": { "fourcc": ""}
@@ -22,7 +51,7 @@
     
         }
         , "scanning":{
-            "pythonScriptName": "brunel_ecotrac_scanner_[MODE].py",
+            "pythonScriptName": "brunel_ecotrac_scanner.py",
             "maxFrameSize": 1080,
             "snapTo": 20,
             "skipAfter": 10,
@@ -30,4 +59,5 @@
             "sensitivity": 5
         }
     }
+
 }

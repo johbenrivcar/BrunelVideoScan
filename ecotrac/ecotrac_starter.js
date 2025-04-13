@@ -7,6 +7,8 @@
 const eGlobal = require("./ecotrac_global");
 
 let run_mode = eGlobal.RUN_MODE ;
+let server = eGlobal.config.server;
+let codeVersion = eGlobal.config.gitBranch;
 
 // -------------------------------------------------------
 
@@ -31,13 +33,15 @@ function start(){
     log("*");
     log("*********************************************");
     
+    console.log("** Root ready to run in mode:     " + run_mode + " . . . . ");
+    console.log("** Using ecotrac code git branch: " + codeVersion);
+    console.log("** Running on server:             " + server );
+    console.log("** Root path set to               " + eGlobal.ECOTRAC_ROOT_PATH); 
+
+}
     root = require("./ecotrac_root");
     // root.start is an async function that kicks off the application load and runs
     // the application.
     setImmediate( ()=>{ root.run(run_mode) } )
 
-    console.log("** Root about to run in " + run_mode + " . . . . ");
-    console.log("** with root path set to " + eGlobal.ECOTRAC_ROOT_PATH); 
-
-}
 

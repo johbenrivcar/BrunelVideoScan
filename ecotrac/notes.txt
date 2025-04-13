@@ -1,0 +1,7 @@
+scan S[1] {
+  mode: 'MODE:DEV',
+  root: 'ROOT:G:/My Drive/Chorus/Brunel/ecotrac/ecotrac_D01_Desdemona/customers/',
+  cust: 'CUST:cust_rivettcarnac@gmail.com'
+}
+
+py brunel_ecotrac_scanner_T01_Corinth

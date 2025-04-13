@@ -1,6 +1,17 @@
 # Get the sys library for stdOut abd run-time
 # parameters
 import sys
+import datetime
+import time
+# Returns cpu time used so far by the current process
+cpuTime = time.process_time
+# Now function returns the current date and time
+newTS = datetime.datetime.now
+def sDTS(dt):
+    return str(dt)[0:19]
+
+
+
 ####################################
 # This function is used to send messages through stdOut to the  
 # controlling nodejs process.
@@ -12,10 +23,38 @@ def msg(*items):
 
 # Get the openCV library
 import cv2
+# Get basoc cv cpmstamsts used in scanning
+vidFont = cv2.FONT_HERSHEY_DUPLEX
+color = (255, 255, 255) # red
+fontsize = 1
+
 # Get the python math library
 import math
 # Get the Brunel Ecotract classes module
 import brunel_ecotrac_classesA
+
+sDTS = brunel_ecotrac_classesA.sDTS
+secsDiff = brunel_ecotrac_classesA.secsDiff
+cpuTime = brunel_ecotrac_classesA.cpuTime
+newTS = brunel_ecotrac_classesA.newTS
+secsToMinsSecs = brunel_ecotrac_classesA.secsToMinsSecs
+
+def addInfoToFrame( fileName, frame, videoNumber, frameNumber, secsFromStart ):
+    global fontsize, color, vidFont, secsToMinsSecs
+    infoPosition = (20,70)
+    text = "[" + str(videoNumber) + "/" + str(frameNumber) + "] " + secsToMinsSecs(secsFromStart) 
+    cv2.putText( frame, text, infoPosition, vidFont, fontsize, color = color )
+    text = fileName
+    infoPos = ( 20, 30 )
+    cv2.putText( frame, fileName, infoPos, vidFont, fontsize, color = color )
+
+startTS = newTS()
+startCPU = cpuTime()
+
+print("Scanning run started at " + sDTS(startTS) + " with CPU so far " + str(startCPU) )
+
+
+
 # Get the ecotrac settings module and getSetting function
 import brunel_ecotrac_settings
 getSetting = brunel_ecotrac_settings.getSetting
@@ -68,8 +107,8 @@ for ix in range(1, len(args)):
 msg("Run time parameters: ", rtps)
 
 # Now validate the run-time-parameters
-runMode = "" # Parameter key is mode, this normally corresponds to /version_server/
-gDriveRoot = "" # Parameter key is root, path to root folder (normally on gDrive ecotrac folder)
+targetMode = "" # Parameter key is mode
+targetRoot = "" # Parameter key is root, path to root folder (normally on gDrive ecotrac folder)
 targetCustomer = "" # Parameter key is cust, gives name of the customer folder (normally "cust_" followed by email )
 fldr = "" # parameter key is fldr, gives the name of the order sub-folder (in customer folder) to be scanned
 disp = False # parameter key is disp, Y or N indicates if you want to see the video animation while it is being scanned
@@ -84,8 +123,8 @@ except:
 
 # check that all four other rtps are given, because they are all mandatory
 try:
-    runMode = rtps["mode"] 
-    gDriveRoot = rtps["root"]
+    targetMode = rtps["mode"] 
+    targetRoot = rtps["root"]
     targetCustomer = rtps["cust"]
     targetVideoFolder = rtps["fldr"]
     
@@ -101,10 +140,12 @@ if not targetVideoFolder.endswith(".scanning"):
     exit(343)
 
 # The full path to the folder is the combination of three parameters
-targetFolderFullPath = join( gDriveRoot, targetCustomer, targetVideoFolder )
+targetFolderFullPath = join( targetRoot, targetCustomer, targetVideoFolder )
 
 
-logger = brunel_ecotrac_classesA.getLogger(targetFolderFullPath)
+scanReport = brunel_ecotrac_classesA.getLogger(targetFolderFullPath)
+scanReport.log( "_________________________________________________")
+scanReport.log( "* Scanning run started at "+ sDTS(startTS) )
 
 msg( "Target folder: ", targetFolderFullPath)
 
@@ -117,6 +158,19 @@ msg( "Target folder: ", targetFolderFullPath)
 #       an information panel that gives the location details of the movment that was found
 #     
 
+# this function checks if a file is scannable
+# Currently .mp4 and .avi only
+def isScannable(f): # ====================================
+    ff = f.lower()
+    if ff.endswith(".scanned.mp4"):
+        return False
+    if ff.endswith(".mp4"):
+        return True
+    if ff.endswith(".avi"):
+        return True
+    return False
+# =========================================================
+
 
 showDisplay = disp
 
@@ -125,7 +179,7 @@ sys.stdout.flush()
 try:
     # Get the list of video files to be processed
     # They must all end in .mp4 but not .scanned.mp4 (which is the output file of the scanning process)
-    filesToProcess = [f for f in listdir(targetFolderFullPath) if isfile(join(targetFolderFullPath,  f)) and ( f.lower().endswith(".mp4") ) and not ( f.lower().endswith(".scanned.mp4") ) ]
+    filesToProcess = [f for f in listdir(targetFolderFullPath) if isfile(join(targetFolderFullPath,  f)) and isScannable(f) ]
 except:
     # If that failed report it back to the nodejs controller
     msg("No folder was found in the location specified")
@@ -220,7 +274,7 @@ for videoFileName in filesToProcess:
     videoReader = brunel_ecotrac_classesA.VideoReader(videoSourceFullPath)
 
     # Get the underlying openCV video reader object
-    video = videoReader.video
+    #video = videoReader.video
 
     # Check if we have started outputting a video yet, if not start a new one.
     if videoOutputFullPath == "":
@@ -242,7 +296,7 @@ for videoFileName in filesToProcess:
 
         # Create the video writer output file using the same fps as the input.
         #  (We assume that all input videos have the same frame rate)
-        videoWriter = brunel_ecotrac_classesA.VideoWriterMP4(videoOutputFullPath, videoReader.fps, ( outputFrameWidth, outputFrameHeight ) ) #videoInfo.frameSize )
+        videoWriter = brunel_ecotrac_classesA.VideoWriterMP4(videoOutputFullPath, videoReader.stats.fps, ( outputFrameWidth, outputFrameHeight ) ) #videoInfo.frameSize )
         
         # Get the underlying OpenCV video object (in future will wrap)
         videoOut = videoWriter.video
@@ -252,8 +306,8 @@ for videoFileName in filesToProcess:
         sys.stdout.flush()
     
     #Caclulate the scaling factor being the ratio of output to input frame sizes
-    widthScaleFactor = outputFrameWidth / videoReader.frameWidth
-    heightScaleFactor = outputFrameHeight / videoReader.frameHeight
+    widthScaleFactor = outputFrameWidth / videoReader.stats.frameWidth
+    heightScaleFactor = outputFrameHeight / videoReader.stats.frameHeight
     msg("frameScaleFactor is set to", widthScaleFactor, heightScaleFactor)
     msg("Output frame size " + str(outputFrameWidth) + "x" + str(outputFrameHeight) )
 
@@ -266,8 +320,9 @@ for videoFileName in filesToProcess:
     msg("Start of video +++++++++++++++++++++++++++++++++")
     sys.stdout.flush()
     while True:
-        status, frame = video.read()
-        
+        status, frame = videoReader.getFrame(); # video.read()
+        #print("status=", status)
+        #print("frame=", frame)
         # Check that the read was successful, if not end the loop
         if not status :
             break
@@ -430,6 +485,11 @@ for videoFileName in filesToProcess:
         if not skipping:
             outputFrameCount += 1
             
+            # Here we add information to the frame
+            sInFrameNum = str(scanNum) + "/" +  str(frameNumber)
+            secsFromStart = frameNumber / videoReader.stats.fps
+            #print("SecsFromStart", secsFromStart )
+            addInfoToFrame( videoFileName, frame, scanNum, frameNumber, secsFromStart )
 
             videoOut.write( frame )
             if showDisplay:
@@ -447,12 +507,13 @@ for videoFileName in filesToProcess:
 
     msg("End of video ++++[" + videoFileName + "]++++++ at frame number:", frameNumber)
     # Close the input video file
-    video.release()
+    # video.release()
 
 msg( "##################################################### Finished at", datetime.now().strftime("%H:%M") )
 #video.release()
 videoOut.release()
 
+msg("CPU:" + str(cpuTime()))
 msg("END:000")
 #cv2.waitKey(0)
 #cv2.destroyAllWindows()

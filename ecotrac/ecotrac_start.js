@@ -8,9 +8,8 @@
 
 // CHANGE GLOBALS TO POINT THE RUN TO DEV, TEST, or PROD locations
 
-
 const eGlobal = require("./ecotrac_global");
-eGlobal.setRunMode("DEV");
+const settings = require("./ecotrac_settings");
 
 let starter = require("./ecotrac_starter")
 
@@ -18,8 +17,6 @@ console.log( "++++++++++++++++++++++++++++++++++++++++++++++++++++")
 console.log( '+++++++++++++++ APPLICATION STARTING +++++++++++++++')
 console.log( `++ ${ new Date() } ++`)
 console.log( "++++++++++++++++++++++++++++++++++++++++++++++++++++")
-
-process.exit(233)
 
 setImmediate( ()=>{ starter.start() } ) ;
 

@@ -1,21 +1,31 @@
 
-const eGlobal = require("./ecotrac_global");
 /** 
  * The root of the application, responsible for setting up the whole system from scratch and starting the
  * monitoring processes.
 */
-const settings = require("./ecotrac_settings");
 
-const log = require("./ecotrac_logger").getLogger("ecotract_root");
+
+exports.run = run;
+
+
+const eGlobal = require("./ecotrac_global");
+// Not used?
+const settings = require("./ecotrac_settings");
+//
+
+
+const log = require("./ecotrac_logger").getLogger("_root");
 
 const customer = require("./ecotrac_customer")
 const customerMasterFolder = require("./ecotrac_customerMasterFolder")
+
 require("./ecotrac_events")
 require("./ecotrac_monitorCustomerFolder")
-//require("./ecotrac_orderFolder")
 require("./ecotrac_utils")
+
+
 const allCustomers = require("./ecotrac_allCustomers")
-//require("./ecotrac_")
+
 
 async function run(  ){
 
@@ -42,7 +52,5 @@ function load_allCustomers(){
 }
 
 
-
-module.exports.run = run;
-
 console.log("+++> ecotrac_root MODULE LOADED")
+

@@ -90,6 +90,9 @@ class Scanner{
         let fldr = "FLDR:" + newFolderName ;
 
 
+        this.log("Command to start the scanner: ***********************************************");
+        this.log(`py "${pathToScannerScript}"  "${mode}" "${root}" "${cust}" "${fldr}"`  );
+        
         let proc = this.pythonProcess = spawn('py', [pathToScannerScript, mode , root, cust, fldr], {cwd: pathToScannerCWD } );
 
         proc.stdout.on('data', (data) => {
