@@ -458,12 +458,21 @@ for videoFileName in filesToProcess:
                     box.b = nearestBox.b
                     box.r = nearestBox.r
 
-        if True: # TODO test for number of boxes in the frame
-            for box in boxes:
-                box.drawInFrame(frame)
-                #cv2.rectangle( frame, (box.l,box.t), (box.r, box.b), (0, 255, 0), 3 )
+        boxesToShow = boxes
+        
 
+        # On the first frame with no movement, after previously there was movement,
+        # repeat the previous frame boxes for one frame, because sometimes
+        # the stream repeats a frame, so it shows no movement even though
+        # the next frame will continue the movement from the previous frame
+        if len(prevBoxes)>0 and len( boxes ) == 0:
+            boxesToShow = prevBoxes
+        
         prevBoxes = boxes
+
+        for box in boxesToShow:
+            box.drawInFrame(frame)
+            #cv2.rectangle( frame, (box.l,box.t), (box.r, box.b), (0, 255, 0), 3 )
 
         # If there are no boxes to be shown, set the frame skipping 
         # control variables
