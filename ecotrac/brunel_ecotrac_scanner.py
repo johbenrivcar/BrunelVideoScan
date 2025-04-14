@@ -188,11 +188,12 @@ except:
     exit(105)
 
 # Sort the found files into name order for scanning. 
-# This is a system convention. The person submitting the files must name
-# them so that they are scanned in the order they require.
+# This is an application convention. The person submitting the
+# files must name them so that they are scanned in the order
+# required.
 filesToProcess.sort()
 
-# Report the list of files to be sorted
+# Report the list of files to be scanned
 msg("FTP:", filesToProcess)
 
 # Check that we have at least one file to process
@@ -210,8 +211,10 @@ shiftLimit = brunel_ecotrac_settings.getSetting("scanning.shiftLimit")
 # sensitivity should be a number in the range 1 to 10, this is
 # translated into threshold numbers used to detect if changes have
 # occurred in images.
+# NOT CURRENTLY IMPLEMENTED
 sensitivity = brunel_ecotrac_settings.getSetting("scanning.sensitivity")
-#
+
+
 # ****************
 
 COLOURS = brunel_ecotrac_classesA.Colours()
@@ -313,12 +316,20 @@ for videoFileName in filesToProcess:
 
     # Now ready to process this input video file
     isFirstFrame = True
+    prevBoxes = []
+
+    # Flags to indicate the video output is skipping if no movement is found
+    skipping = True
+    skipCountDown = 0
+    skipCountUp = 0
+    skip1 = False
+    frame = None
 
     # Note that the Brunel ecotrac reader reads in the first frame on opening and uses this as the
     # reference frame, if comparison is to reference frame rather than to previous frame.
     frameNumber = 0
     msg("Start of video +++++++++++++++++++++++++++++++++")
-    sys.stdout.flush()
+    
     while True:
         status, frame = videoReader.getFrame(); # video.read()
         #print("status=", status)
@@ -388,9 +399,14 @@ for videoFileName in filesToProcess:
                 # Adjust the rectangle to snap to a grid determined by the snapTo setting
                 t = y#(y-snapTo) 
                 l = x#(x-snapTo) 
+                # bottom and right coordinates are taken beyond the box by one grid size
+                # so that when adjusted by modulus the final position is outside the bounding
+                # box
                 b = y+h+snapTo
                 r = x+w+snapTo
                 
+                # The adjusted grid references are calculated by subtracting the modulus
+                # 
                 adjt = t - t % snapTo
                 adjl = l - l % snapTo
                 adjb = b - b % snapTo
@@ -398,7 +414,8 @@ for videoFileName in filesToProcess:
                 box = brunel_ecotrac_classesA.Box(adjl, adjt, adjr, adjb)
                 boxes.append( box )
 
-        # Check for sudden increase in number of boxes, ignore the frame
+        # Check for sudden increase in number of boxes, ignore the boxes 
+        # if so and use the boxes from the previous frame
         if len(boxes) - len(prevBoxes) > 15:
             # Adopt all the boxes found on the previous frame
             boxes = prevBoxes
@@ -410,14 +427,19 @@ for videoFileName in filesToProcess:
                 nearestShift = 10000000
                 for pbox in prevBoxes:
                     #msg("Shift calc:", pbox.report(), box.report() )
+                    # Calculate the change in position of all co-ordinate
                     xt = (pbox.t-box.t) 
                     xl = (pbox.l-box.l)
                     xb = (pbox.b-box.b)
                     xr = (pbox.r-box.r)
+                    # Calculate a measure of the degree of difference
                     xtl = math.sqrt(xt**2 + xl**2 )
                     xbr = math.sqrt(xb**2 + xr**2 )
                     boxshift = xtl + xbr
 
+                    # Check if the two boxes are close enough that they
+                    # could refer to the same mmovement and there is not
+                    # another box we have already found that closer
                     if boxshift < 20  and boxshift < nearestShift:
                         #msg("pbox, box:", pbox.report(), box.report() )
                         #msg( "SHIFT(t,l,b,r):(", xt, xl, xb, xr, ")")
@@ -425,9 +447,11 @@ for videoFileName in filesToProcess:
                         #msg("boxshift:", boxshift)
                         nearestBox = pbox
                         nearestShift = boxshift
-
+                # Now check that we found a box that qualifies as the same as a
+                # box on the previous frame, then use the position of that
+                # previous frame
                 if  nearestShift < shiftLimit :
-                    #msg("\rBox shift", nearestShift, box.report(), "<<", nearestBox.report(), "                            ")
+                    msg("Box shift", nearestShift, box.report(), "<<", nearestBox.report(), "                            ")
                     #msg("")
                     box.t = nearestBox.t
                     box.l = nearestBox.l
@@ -464,17 +488,17 @@ for videoFileName in filesToProcess:
             # There is movement in this frame, so stop skipping
             # and stop counting down.
             if skipping:
-                if len(boxes)==1:
-                    # If this is the first box to show movement during
-                    # skipping and there is only one box, then skip 3
-                    # frames, because it's probably spurious
-                    skipCountUp +=1
-                    if skipCountUp > 4:
-                        skipping = False
-                        msg(" SKIPPING stopped at frame ", frameNumber)
-                        skipCountDown = 0
-                        skipCountUp = 0
-                else: 
+                # if len(boxes)==1:
+                #     # If this is the first box to show movement during
+                #     # skipping and there is only one box, then skip 3
+                #     # frames, because it's probably spurious
+                #     skipCountUp +=1
+                #     if skipCountUp > 4:
+                #         skipping = False
+                #         msg(" SKIPPING stopped at frame ", frameNumber)
+                #         skipCountDown = 0
+                #         skipCountUp = 0
+                # else: 
                     # More than one box on the frame so stop skipping
                     skipping = False
                     msg(" SKIPPING stopped at frame ", frameNumber)
@@ -494,8 +518,8 @@ for videoFileName in filesToProcess:
             videoOut.write( frame )
             if showDisplay:
                 cv2.imshow("Scanned", frame)
-                cv2.imshow("Diff video", diff)
-                cv2.imshow("Threshold", thresh )
+                #cv2.imshow("Diff video", diff)
+                #cv2.imshow("Threshold", thresh )
                 key = cv2.waitKey(frameDelay)
             # if key == ord('q'):
             #     exit(0))
