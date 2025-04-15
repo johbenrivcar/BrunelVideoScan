@@ -96,33 +96,37 @@ class Scanner{
         let proc = this.pythonProcess = spawn('py', [pathToScannerScript, mode , root, cust, fldr], {cwd: pathToScannerCWD } );
 
         proc.stdout.on('data', (data) => {
-            let msg = data.toString();
+            let msgIn = data.toString();
+            let msgs = msg.split( "[-!-]")
+            msgs.forEach( (msg, ix)=>{
+                if(msg.length > 0){}
+                    this.log("|py|=[" + msg + "]=" );
 
-            this.log("|py|=[" + msg + "]=" );
+                    if(msg.substr(0, 4) == "END:"){
+                        this.log("Scanning process completed");
 
-            if(msg.substr(0, 4) == "END:"){
-                this.log("Scanning process completed");
+                        oldFolderPath = newFolderPath;
+                        newFolderPath = newFolderPath.replace(".scanning", ".processed");
+                        
+                        try{
+                            this.log( "Attempting folder rename to .processed status");
+                            this.log( oldFolderPath );
+                            this.log( newFolderPath );
+                            fs.renameSync(oldFolderPath, newFolderPath);
+                            this.folder.scanInProgress = false;
 
-                oldFolderPath = newFolderPath;
-                newFolderPath = newFolderPath.replace(".scanning", ".processed");
+                        } catch(e){
+                            this.log ("ERROR: When trying to rename folder after scan");
+
+                        }
                 
-                try{
-                    this.log( "Attempting folder rename to .processed status");
-                    this.log( oldFolderPath );
-                    this.log( newFolderPath );
-                    fs.renameSync(oldFolderPath, newFolderPath);
-                    this.folder.scanInProgress = false;
 
-                } catch(e){
-                    this.log ("ERROR: When trying to rename folder after scan");
 
+                    }
                 }
-        
+                    
+            })
 
-
-            }
-
-            
 
         });
 

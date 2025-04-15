@@ -26,11 +26,11 @@
                 "gitBranch": "B01_Corinth",
                 "server": "Corinth"
             }
-            ,"T01_Corinth+Corinth":{ 
+            ,"T02_Corinth+Corinth":{ 
                 "mode": "TEST",
-                "basePath": "J:/My Drive/Chorus/Brunel/ecotrac/",
-                "rootFolder": "ecotrac_T01_Corinth/",
-                "gitBranch": "T01_Corinth",
+                "basePath": "J:/JohBenRivCarGoogleDrive/Chorus/Brunel/ecotrac/",
+                "rootFolder": "ecotrac_T02_Corinth/",
+                "gitBranch": "T02_Corinth",
                 "server": "Corinth"
             }
             ,"P01_Corinth+Corinth":{ 

@@ -16,7 +16,7 @@ def sDTS(dt):
 # This function is used to send messages through stdOut to the  
 # controlling nodejs process.
 def msg(*items):
-    print(*items)
+    print("[-!-]", *items)
     sys.stdout.flush()
 # #################################
 
@@ -547,6 +547,7 @@ msg( "##################################################### Finished at", dateti
 videoOut.release()
 
 msg("CPU:" + str(cpuTime()))
+
 msg("END:000")
 #cv2.waitKey(0)
 #cv2.destroyAllWindows()
