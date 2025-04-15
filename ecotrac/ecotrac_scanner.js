@@ -97,9 +97,11 @@ class Scanner{
 
         proc.stdout.on('data', (data) => {
             let msgIn = data.toString();
-            let msgs = msg.split( "[-!-]")
+            let msgs = msgIn.split( "[-!-]");
+
             msgs.forEach( (msg, ix)=>{
-                if(msg.length > 0){}
+                if(msg.length > 0){
+
                     this.log("|py|=[" + msg + "]=" );
 
                     if(msg.substr(0, 4) == "END:"){
@@ -124,15 +126,13 @@ class Scanner{
 
                     }
                 }
+            });
                     
-            })
-
-
         });
 
         this.folder.scanInProgress = true;
         return true;
-
+    
     }
 
     pythonMessage( data ){
