@@ -24,9 +24,15 @@ def msg(*items):
 # Get the openCV library
 import cv2
 # Get basoc cv cpmstamsts used in scanning
-vidFont = cv2.FONT_HERSHEY_DUPLEX
+vidFont = cv2.FONT_HERSHEY_DUPLEX;
+nFont = cv2.FONT_HERSHEY_PLAIN or cv2.FONT_ITALIC;
 color = (255, 255, 255) # red
+logoColor = (300,145, 200)
 fontsize = 1
+pos_topLeft1 =(20, 30 )
+pos_topLeft2 =(20, 70 )
+pos_topRight1 =( 900, 30 )
+pos_botRight1 =( 900, 700)
 
 # Get the python math library
 import math
@@ -40,13 +46,15 @@ newTS = brunel_ecotrac_classesA.newTS
 secsToMinsSecs = brunel_ecotrac_classesA.secsToMinsSecs
 
 def addInfoToFrame( fileName, frame, videoNumber, frameNumber, secsFromStart ):
-    global fontsize, color, vidFont, secsToMinsSecs
-    infoPosition = (20,70)
+    global fontsize, color, vidFont, secsToMinsSecs, nFont, pos_topLeft1, pos_topLeft2, pos_botRight1, pos_topRight1, logoColor
+    infoPosition = pos_topLeft2
     text = "[" + str(videoNumber) + "/" + str(frameNumber) + "] " + secsToMinsSecs(secsFromStart) 
     cv2.putText( frame, text, infoPosition, vidFont, fontsize, color = color )
     text = fileName
-    infoPos = ( 20, 30 )
+    infoPos = pos_topLeft1
     cv2.putText( frame, fileName, infoPos, vidFont, fontsize, color = color )
+    infoPos = pos_botRight1
+    cv2.putText( frame , "Brunel ecoScan", pos_botRight1, nFont, fontsize * 2, color = logoColor )
 
 startTS = newTS()
 startCPU = cpuTime()
@@ -299,7 +307,7 @@ for videoFileName in filesToProcess:
 
         # Create the video writer output file using the same fps as the input.
         #  (We assume that all input videos have the same frame rate)
-        videoWriter = brunel_ecotrac_classesA.VideoWriterMP4(videoOutputFullPath, videoReader.stats.fps, ( outputFrameWidth, outputFrameHeight ) ) #videoInfo.frameSize )
+        videoWriter = brunel_ecotrac_classesA.VideoWriterMP4(videoOutputFullPath, int(videoReader.stats.fps/2), ( outputFrameWidth, outputFrameHeight ) ) #videoInfo.frameSize )
         
         # Get the underlying OpenCV video object (in future will wrap)
         videoOut = videoWriter.video

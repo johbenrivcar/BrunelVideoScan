@@ -100,6 +100,7 @@ class Scanner{
             let msgs = msgIn.split( "[-!-]");
 
             msgs.forEach( (msg, ix)=>{
+                msg = msg.trim();
                 if(msg.length > 0){
 
                     this.log("|py|=[" + msg + "]=" );

@@ -5,13 +5,14 @@
         "default_mode": "T01_Corinth" ,
         
         "config_list":{
-            "D01_Desdemona+Desdemona":{ 
+            "D03_Desdemona+Desdemona":{ 
                 "mode": "DEV",
                 "basePath": "G:/My Drive/Chorus/Brunel/ecotrac/",
-                "rootFolder": "ecotrac_D01_Desdemona/",
-                "gitBranch": "DEV_Desdemona",
+                "rootFolder": "ecotrac_D03_Desdemona/",
+                "gitBranch": "D03_Desdemona",
                 "server": "Desdemona"
             }
+
             ,"T01_Desdemona+Desdemona":{ 
                 "mode": "TEST",
                 "basePath": "G:/My Drive/Chorus/Brunel/ecotrac/",
@@ -19,6 +20,7 @@
                 "gitBranch": "T01_Desdemona",
                 "server": "Desdemona"
             }
+            
             ,"B01_Corinth+Corinth":{ 
                 "mode": "BETA",
                 "basePath": "J:/My Drive/Chorus/Brunel/ecotrac/",

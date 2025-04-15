@@ -220,11 +220,8 @@ class VideoReader:
         
 
 class VideoWriterMP4:
-    fps = 30
-    mspf = round(1000/30)
-    frameWidth = 0
-    frameHeight = 0
     fourcc = cv2.VideoWriter_fourcc(*'XVID') # Code for MP4 encoding
+
 
     def __init__(self,  videoFileName, fps, frameSize):
         # fileName, fileSeqNumber, fileDTS, fileFrameRate, fileCodec, fileFrameCount, 
