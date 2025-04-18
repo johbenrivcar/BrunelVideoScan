@@ -3,43 +3,61 @@
         "comment10":"global section is used by both node and python scripts",
 
         "default_mode": "T01_Corinth" ,
-        
-        "config_list":{
-            "D03_Desdemona+Desdemona":{ 
+        "dataPath_perServer":{
+            "Desdemona": "G:/My Drive/Chorus/Brunel/ecotrac/",
+            "Corinth": "J:/JohBenRivCarGoogleDrive/Chorus/Brunel/ecotrac/"
+        }
+        ,"config_perGitvServer":{
+            "D03+Desdemona":{ 
                 "mode": "DEV",
-                "basePath": "G:/My Drive/Chorus/Brunel/ecotrac/",
                 "rootFolder": "ecotrac_D03_Desdemona/",
-                "gitBranch": "D03_Desdemona",
+                "gitBranch": "D03",
                 "server": "Desdemona"
             }
 
-            ,"T01_Desdemona+Desdemona":{ 
+            ,"D03_WebServer+Desdemona":{ 
+                "mode": "DEV",
+                "rootFolder": "D03_Desdemona/",
+                "gitBranch": "D03_Webserver",
+                "server": "Desdemona"
+            }
+
+            ,"T01+Desdemona":{ 
                 "mode": "TEST",
-                "basePath": "G:/My Drive/Chorus/Brunel/ecotrac/",
-                "rootFolder": "ecotrac_T01_Desdemona/",
-                "gitBranch": "T01_Desdemona",
+                "rootFolder": "T01_Desdemona/",
+                "gitBranch": "T01",
                 "server": "Desdemona"
             }
             
             ,"B01_Corinth+Corinth":{ 
                 "mode": "BETA",
-                "basePath": "J:/My Drive/Chorus/Brunel/ecotrac/",
                 "rootFolder": "ecotrac_B01_Corinth/",
                 "gitBranch": "B01_Corinth",
                 "server": "Corinth"
             }
-            ,"T02_Corinth+Corinth":{ 
+            ,"T02+Corinth":{ 
                 "mode": "TEST",
-                "basePath": "J:/JohBenRivCarGoogleDrive/Chorus/Brunel/ecotrac/",
-                "rootFolder": "ecotrac_T02_Corinth/",
-                "gitBranch": "T02_Corinth",
+                "rootFolder": "T02_Corinth/",
+                "gitBranch": "T02",
                 "server": "Corinth"
             }
-            ,"P01_Corinth+Corinth":{ 
+            ,"T03+Corinth":{ 
+                "mode": "TEST",
+                "rootFolder": "T03_Corinth/",
+                "gitBranch": "T03",
+                "server": "Corinth"
+            }
+            ,"T03_Corinth+Corinth":{ 
+                "mode": "TEST",
+                "rootFolder": "T03_Corinth/",
+                "gitBranch": "T03_Corinth",
+                "server": "Corinth"
+            }
+            ,"P01+Corinth":{ 
                 "mode": "PROD",
                 "basePath": "J:/My Drive/Chorus/Brunel/ecotrac/",
-                "rootFolder": "ecotrac_P01_Corinth/",
-                "gitBranch": "P01_Corinth",
+                "rootFolder": "P01_Corinth/",
+                "gitBranch": "P01",
                 "server": "Corinth"
             }
         }

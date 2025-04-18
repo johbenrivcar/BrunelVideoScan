@@ -18,11 +18,15 @@
 let GITV, SRVR;
 let rtps = process.argv
 console.log("rtps",rtps)
-rtps.forEach(  (rtp, ix)=>{
-    console.log("rtp", rtp)
+let mode , gitBranch, rootFolder, server, basePath
+let config
+let json
+
+try{
+    rtps.forEach(  (rtp, ix)=>{
     let kvp = rtp.split(":", 2);
     
-    console.log("kvp", kvp)
+    // console.log("kvp", kvp)
 
     if (kvp.length != 2 ){
         throw new Error("Invalid parameter, must be KEY:value format", rtp);
@@ -31,63 +35,96 @@ rtps.forEach(  (rtp, ix)=>{
     let val = kvp[1];
     switch(key){
         case "GITV":
+            console.log("rtp", rtp)
             GITV = val;
             break;
         case "SRVR":
+            console.log("rtp", rtp)
             SRVR = val;
             break;
         default:
+            //console.log("  >Ignored")
             // ignore this parameter
             // throw new Error(`Invalid parameter, [${key}] is not a recognised parameter`, rtp);
     }
-})
+    });
 
-if(!GITV){
-    throw new Error("Must supply GITV parameter")
-}
+    if(!GITV){
+        throw new Error("Must supply GITV parameter")
+    }
 
-if(!SRVR){
-    throw new Error("Must supply SRVR parameter")
-}
+    if(!SRVR){
+        throw new Error("Must supply SRVR parameter")
+    }
 
-/**
- * Load the global parameters from the global parameters file
- */
-const json = require("./ecotrac_global.json")
+    /**
+     * Load the global parameters from the global parameters file
+     */
+    json = require("./ecotrac_global.json")
 
-/**
- * Get the runtime configuration settings that depend on git version and the server on which it is being run
- */
-let configKey = GITV + "+" + SRVR;
-let config = json.global.config_list[configKey];
-if(!config){
-    throw new Error(`Configuration ${configKey} was not found in config list (ecotrac_global.json)`)
-}
-/* Config example format
-            { 
-                "mode": "TEST",
-                "rootPath": "G:/My Drive/Chorus/Brunel/ecotrac/ecotrac_T01_Desdemona/",
-                "gitBranch": "T01_Desdemona/"
+    /**
+     * Get the runtime configuration settings that depend on git version and the server on which it is being run
+     */
+
+    basePath = json.global.dataPath_perServer[SRVR];
+    /* BasePath example format
+            "dataPath_perServer":{
+                "Desdemona": "G:/My Drive/Chorus/Brunel/ecotrac/",
+                "Corinth": "J:/JohBenRivCarGoogleDrive/Chorus/Brunel/ecotrac/"
             }
-*/
-let  {mode , gitBranch, basePath , rootFolder } = config
+    */
+
+    let configKey = GITV + "+" + SRVR;
+    config = json.global.config_perGitvServer[configKey];
+
+    /* Config example format
+            "config_perGitvServer":{
+                "D03+Desdemona":{ 
+                    "mode": "DEV",
+                    "rootFolder": "ecotrac_D03_Desdemona/",
+                    "gitBranch": "D03",
+                    "server": "Desdemona"
+                }
+            }
+    */
+    if(!basePath){
+        throw new Error(`DataPath entry for server ${SRVR} was not found in config file (ecotrac_global.json)`)
+    }
+
+    if(!config){
+        throw new Error(`GitVersion+Server combination ${configKey} was not found in config file (ecotrac_global.json)`)
+    }
+
+    mode = config.mode;
+    gitBranch = config.gitBranch;
+    rootFolder = config.rootFolder;
+    server = config.server;
+
+    if(GITV != gitBranch){
+        throw new Error(`Run-time GitVersion ${GITV} does not match version ${gitBranch} in configuration entry for ${configKey} in config file (ecotrac_global.json)`)
+    };
+
+    if(SRVR != server){
+        throw new Error(`Run-time Server ${SRVR} does not match server ${server} in configuration entry for ${configKey} in config file (ecotrac_global.json)`)
+    };
 
 
+    /**
+     * Check the git version by checking in the .git/HEAD file
+     */
 
+    fs = require("fs");
 
-/**
- * Check the git version by checking in the .git/HEAD file
- */
+    let data = fs.readFileSync('../.git/HEAD', 'utf8');
+    let runningSourceVersion = data.split("/").pop().trimRight();
+    if( runningSourceVersion!==GITV ){
+        throw new Error(`Mismatch between expected run-time version [${GITV}] and actual source code version [${runningSourceVersion}]`)
+    }
 
-fs = require("fs");
-
-let data = fs.readFileSync('../.git/HEAD', 'utf8');
-let xx = data.split("/").pop().trimRight();
-if( xx!==GITV ){
-    throw new Error(`Mismatch between run version [${GITV}] and source code version [${xx}]`)
+} catch(err) {
+    console.log(err )
+    process.exit(342)
 }
-
-
 
 const utils = require("./ecotrac_utils");
 const dts = utils.dts;
