@@ -112,23 +112,72 @@ class VideoFrame:
     frameNumber = 0
     
 class VideoStats:
+    fileNumber = 0
     fps = 0
     mspf = 0
     frameWidth = 0
     frameHeight = 0
     frameSize = (0,0)
     frameCount = 0
-    scanCPUsecs = 0
-    scanTimeSecs = 0
     scanCPUSecs = 0
-    videoGB = 0.0
+    scanTimeSecs = 0
+    videoMB = 0.0
     videoDurationSecs = 0
     scanStartTime = None
     scanEndTime = None
     scanTimeSecs = 0
+    scanCPUPerMinVideo = 0
+    scanCPUPerFrame = 0.0
+    videoCount = 0
+
+    def reportStats(stats):
+        ll = getLogger()
+        ll.log("********************************************************")
+        if stats.fps > 0:
+            ll.log("*         Frames per second: " + str( stats.fps ) +  "(" + str( stats.mspf) + "ms per frame)")
+            ll.log("*      Frame width x height: "+ str( stats.frameWidth) +  "x"+ str(  stats.frameHeight   ))
+        ll.log("* Scan statistics:")
+        if stats.videoCount > 1:
+            ll.log("*     Number of video files: " + str( stats.videoCount ))
+        ll.log("*           Total file size: " + str( round(stats.videoMB, 3)) + "MB")
+
+        fcMsg = "* Total frames/video length: " + str(stats.frameCount)
+        if stats.fps > 0:
+            fcMsg += " / " + secsToMinsSecs( ( round( stats.frameCount/stats.fps , 0) ) )
+        ll.log(fcMsg)
+        ll.log("*           Scan start time: " + sDTS( stats.scanStartTime) )
+        ll.log("*             Scan end time: " + sDTS( stats.scanEndTime) )
+        ll.log("*        Time taken to scan: " + secsToMinsSecs( stats.scanTimeSecs ) )
+        ll.log("*             CPU Time used: " + str( round( stats.scanCPUSecs , 1) ) + " secs (" + str(round( stats.scanCPUPerMinVideo , 1 )) + " secs/min of video)")
+        ll.log("********************************************************")
+            
 
 
+class OverallStats():
+    oStats = VideoStats()
+    def addStats(self, stats):
+        os = self.oStats
+        os.fps = stats.fps
+        os.videoCount += stats.videoCount
+        os.frameCount += stats.frameCount
+        os.scanCPUSecs += stats.scanCPUSecs
+        os.scanTimeSecs += stats.scanTimeSecs
+        os.videoMB += stats.videoMB
+        os.videoDurationSecs += stats.videoDurationSecs
+        if os.scanStartTime == None:
+            os.scanStartTime = stats.scanStartTime
+        os.scanEndTime = stats.scanEndTime
+        os.scanCPUPerMinVideo = 60.0 * os.scanCPUSecs / os.videoDurationSecs 
+        os.scanCPUPerFrame = os.scanCPUSecs / os.frameCount
+    def report(self):
+        
+        ll = getLogger()
+        ll.log( "***** OVERALL STATS FOR THE SCAN ***********************")
+        self.oStats.reportStats()
 
+
+overallStats = OverallStats()
+videoFileCount = 0
 
 class VideoReader:
     currFrameNumber = 0
@@ -140,9 +189,14 @@ class VideoReader:
     
 
     def __init__(self,  videoFileName):
+        global videoFileCount
+        videoFileCount += 1
         stats = self.stats
+        stats.fileNumber = videoFileCount
+        stats.videoCount = 1
         # fileName, fileSeqNumber, fileDTS, fileFrameRate, fileCodec, fileFrameCount, 
         self.fileName = videoFileName
+        stats.videoMB = os.stat(videoFileName).st_size/1000000.0
         #print(" -- opening VideoReader --------------------------")
         self.video = video = cv2.VideoCapture(videoFileName)
 
@@ -181,23 +235,28 @@ class VideoReader:
     
     # Function to read the next frame from the video
     def getFrame(self):
+        global overallStats
+
         stats = self.stats
         status, ffr = self.video.read()
         self.prevFrame = self.currFrame
-        self.currFrame = ffr
+
         if not status:
             print("videoReader..finished")
             self.video.release()
             stats.videoDurationSecs = stats.frameCount / stats.fps
-            stats.scanCPUSecs = time.process_time() - stats.scanCPUSecs
+            stats.scanCPUSecs = cpuSecs = time.process_time() - stats.scanCPUSecs
             stats.scanEndTime = newTS()
-            stats.scanTime = secsDiff( stats.scanEndTime, stats.scanStartTime)
+            stats.scanTimeSecs = secsDiff( stats.scanEndTime, stats.scanStartTime)
+            stats.scanCPUPerMinVideo = 60.0 * cpuSecs / stats.videoDurationSecs 
+            stats.scanCPUPerFrame = cpuSecs / stats.frameCount
             self._report()
+            overallStats.addStats(stats)
         else:
             stats.frameCount +=1    
+            self.currFrame = ffr
 
         #print("cv2.read status=", status)
-        # Add special information to the frame
         return (status, ffr)
         
             
@@ -206,16 +265,8 @@ class VideoReader:
     def _report(self):
         stats = self.stats
         ll = getLogger()
-        ll.log("************ videoReaderInformation: " + self.fileName)
-        ll.log("* Frames per second:         " + str( stats.fps ) +  "(" + str( stats.mspf) + "ms per frame)")
-        ll.log("* Frame width x height:      "+ str( stats.frameWidth) +  "x"+ str(  stats.frameHeight   ))
-        ll.log("* Scan statistics:")
-        ll.log("*           Scan start time: " + sDTS( stats.scanStartTime) )
-        ll.log("*             Scan end time: " + sDTS( stats.scanEndTime) )
-        ll.log("* Total frames/video length: " + str(stats.frameCount) + " / " + secsToMinsSecs( ( round( stats.frameCount/stats.fps , 0) ) ) )
-        ll.log("*        Time taken to scan: " + secsToMinsSecs( stats.scanTime ) )
-        ll.log("*             CPU Time used: " + str( round( stats.scanCPUSecs , 1) ) + " seconds" )
-        ll.log("********************************************************")
+        ll.log("************ Video File Information [" + str(stats.fileNumber) + "]: " + self.fileName)
+        stats.reportStats()
         
         
 

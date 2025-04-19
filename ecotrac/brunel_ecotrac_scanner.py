@@ -24,15 +24,15 @@ def msg(*items):
 # Get the openCV library
 import cv2
 # Get basoc cv cpmstamsts used in scanning
-vidFont = cv2.FONT_HERSHEY_DUPLEX;
-nFont = cv2.FONT_HERSHEY_PLAIN or cv2.FONT_ITALIC;
-color = (255, 255, 255) # red
+infoFont = cv2.FONT_HERSHEY_DUPLEX
+logoFont = cv2.FONT_HERSHEY_PLAIN or cv2.FONT_ITALIC
+infoColor = (255, 255, 255)
 logoColor = (300,145, 200)
 fontsize = 1
-pos_topLeft1 =(20, 30 )
-pos_topLeft2 =(20, 70 )
+pos_infoLine1 =(20, 30 )
+pos_infoLine2 =(20, 70 )
 pos_topRight1 =( 900, 30 )
-pos_botRight1 =( 900, 700)
+pos_logoLine1 =( 900, 700)
 
 # Get the python math library
 import math
@@ -43,6 +43,8 @@ getSetting = brunel_ecotrac_settings.getSetting
 
 # Get the Brunel Ecotract classes module
 import brunel_ecotrac_classesA
+overallStats = brunel_ecotrac_classesA.overallStats
+
 
 # Get references to specific functions in classes module
 sDTS           = brunel_ecotrac_classesA.sDTS
@@ -69,15 +71,16 @@ def addLogoToFrame( frame, img ):
 
 
 def addInfoToFrame( fileName, frame, videoNumber, frameNumber, secsFromStart ):
-    global fontsize, color, vidFont, secsToMinsSecs, nFont, pos_topLeft1, pos_topLeft2, pos_botRight1, pos_topRight1, logoColor
-    infoPosition = pos_topLeft2
-    text = "[" + str(videoNumber) + "/" + str(frameNumber) + "] " + secsToMinsSecs(secsFromStart) 
-    cv2.putText( frame, text, infoPosition, vidFont, fontsize, color = color )
+    global fontsize, infoColor, infoFont, secsToMinsSecs, logoFont, pos_infoLine1, pos_infoLine2, pos_logoLine1, pos_topRight1, logoColor
+
     text = fileName
-    infoPos = pos_topLeft1
-    cv2.putText( frame, fileName, infoPos, vidFont, fontsize, color = color )
-    infoPos = pos_botRight1
-    cv2.putText( frame , "Brunel " + getSetting("app_name") , pos_botRight1, nFont, fontsize * 2, color = logoColor )
+    cv2.putText( frame, fileName, pos_infoLine1, infoFont, fontsize, color = infoColor )
+
+    text = "[" + str(videoNumber) + "/" + str(frameNumber) + "] " + secsToMinsSecs(secsFromStart) 
+    cv2.putText( frame, text, pos_infoLine2, infoFont, fontsize, color = infoColor )
+
+
+    cv2.putText( frame , "Brunel " + getSetting("app_name") , pos_logoLine1, logoFont, fontsize * 2, color = logoColor )
 
 startTS = newTS()
 startCPU = cpuTime()
@@ -572,6 +575,9 @@ for videoFileName in filesToProcess:
 msg( "##################################################### Finished at", datetime.now().strftime("%H:%M") )
 #video.release()
 videoOut.release()
+
+overallStats.report()
+
 
 msg("CPU:" + str(cpuTime()))
 

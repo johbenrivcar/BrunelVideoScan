@@ -1,10 +1,9 @@
 /**
  * This is the global variables module that is used througout the application to
  * provide run-time settings and variables that are not modified once set. 
- * The most important setting is the variable ECOTRAC_ROOT_PATH which is set
- * in the _starter module before any data is loaded. The run mode points to a
- * subfolder of ecotract containing the run data and files for a particular
- * run mode (like Dxx.. development, Txx... testing, and Pxx... production)"
+ * 
+ * 
+ * 
  */
 
 /** Before loading anything, we get the run-time parameters from the 

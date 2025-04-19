@@ -2,7 +2,7 @@
     "global":{
         "comment10":"global section is used by both node and python scripts",
 
-        "app_name": "ecotrac",
+        "app_name": "ecoScan",
         "default_mode": "T03_Corinth" ,
 
         "dataPath_perServer":{
