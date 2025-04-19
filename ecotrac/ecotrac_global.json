@@ -2,7 +2,9 @@
     "global":{
         "comment10":"global section is used by both node and python scripts",
 
-        "default_mode": "T01_Corinth" ,
+        "app_name": "ecotrac",
+        "default_mode": "T03_Corinth" ,
+
         "dataPath_perServer":{
             "Desdemona": "G:/My Drive/Chorus/Brunel/ecotrac/",
             "Corinth": "J:/JohBenRivCarGoogleDrive/Chorus/Brunel/ecotrac/"

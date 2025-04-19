@@ -36,13 +36,19 @@ pos_botRight1 =( 900, 700)
 
 # Get the python math library
 import math
+
+# Get the ecotrac settings module and getSetting function
+import brunel_ecotrac_settings
+getSetting = brunel_ecotrac_settings.getSetting
+
 # Get the Brunel Ecotract classes module
 import brunel_ecotrac_classesA
 
-sDTS = brunel_ecotrac_classesA.sDTS
-secsDiff = brunel_ecotrac_classesA.secsDiff
-cpuTime = brunel_ecotrac_classesA.cpuTime
-newTS = brunel_ecotrac_classesA.newTS
+# Get references to specific functions in classes module
+sDTS           = brunel_ecotrac_classesA.sDTS
+secsDiff       = brunel_ecotrac_classesA.secsDiff
+cpuTime        = brunel_ecotrac_classesA.cpuTime
+newTS          = brunel_ecotrac_classesA.newTS
 secsToMinsSecs = brunel_ecotrac_classesA.secsToMinsSecs
 imgLogo = cv2.resize( cv2.imread("images/logo04.png"), (1280, 720) )
 
@@ -61,6 +67,7 @@ def addLogoToFrame( frame, img ):
     return outFrame
 
 
+
 def addInfoToFrame( fileName, frame, videoNumber, frameNumber, secsFromStart ):
     global fontsize, color, vidFont, secsToMinsSecs, nFont, pos_topLeft1, pos_topLeft2, pos_botRight1, pos_topRight1, logoColor
     infoPosition = pos_topLeft2
@@ -70,18 +77,13 @@ def addInfoToFrame( fileName, frame, videoNumber, frameNumber, secsFromStart ):
     infoPos = pos_topLeft1
     cv2.putText( frame, fileName, infoPos, vidFont, fontsize, color = color )
     infoPos = pos_botRight1
-    cv2.putText( frame , "Brunel ecoScan", pos_botRight1, nFont, fontsize * 2, color = logoColor )
+    cv2.putText( frame , "Brunel " + getSetting("app_name") , pos_botRight1, nFont, fontsize * 2, color = logoColor )
 
 startTS = newTS()
 startCPU = cpuTime()
 
 print("Scanning run started at " + sDTS(startTS) + " with CPU so far " + str(startCPU) )
 
-
-
-# Get the ecotrac settings module and getSetting function
-import brunel_ecotrac_settings
-getSetting = brunel_ecotrac_settings.getSetting
 
 # Get os library which gives access to files and folders
 # and specific functions from that library
