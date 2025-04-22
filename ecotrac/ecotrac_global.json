@@ -15,6 +15,12 @@
                 "rootFolder": "Data_Corinth/",
                 "gitBranch": "T04",
                 "server": "Corinth"
+            },
+            "T04+Desdemona":{ 
+                "mode": "TEST",
+                "rootFolder": "Data_Desdemona/",
+                "gitBranch": "T04",
+                "server": "Desdemona"
             }
         }
     }, 
