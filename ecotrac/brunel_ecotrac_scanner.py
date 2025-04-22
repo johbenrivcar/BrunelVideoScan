@@ -47,21 +47,21 @@ secsDiff       = brunel_ecotrac_classesA.secsDiff
 cpuTime        = brunel_ecotrac_classesA.cpuTime
 newTS          = brunel_ecotrac_classesA.newTS
 secsToMinsSecs = brunel_ecotrac_classesA.secsToMinsSecs
-imgLogo = cv2.resize( cv2.imread("images/logo04.png"), (1280, 720) )
+#imgLogo = cv2.resize( cv2.imread("images/logo04.png"), (1280, 720) )
 
 def addLogoToFrame( frame, img ):
     # Not implemented yet
     return frame;
 
-    alpha = 0.1
-    outFrame = frame.copy()
-    beta = 1.0 - alpha
-    cv2.addWeighted( imgLogo, alpha, frame, beta, 0.0, outFrame )
+    # alpha = 0.1
+    # outFrame = frame.copy()
+    # beta = 1.0 - alpha
+    # cv2.addWeighted( imgLogo, alpha, frame, beta, 0.0, outFrame )
     
-    cv2.imshow("Logo", outFrame)
-    cv2.imshow("Input", frame )
-    cv2.waitKey(1)
-    return outFrame
+    # cv2.imshow("Logo", outFrame)
+    # cv2.imshow("Input", frame )
+    # cv2.waitKey(1)
+    # return outFrame
 
 
 
@@ -546,7 +546,7 @@ for videoFileName in filesToProcess:
             sInFrameNum = str(scanNum) + "/" +  str(frameNumber)
             secsFromStart = frameNumber / videoReader.stats.fps
             #print("SecsFromStart", secsFromStart )
-            frame = addLogoToFrame( frame, imgLogo )
+            #frame = addLogoToFrame( frame, imgLogo )
             addInfoToFrame( videoFileName, frame, scanNum, frameNumber, secsFromStart )
 
             videoOut.write( frame )
