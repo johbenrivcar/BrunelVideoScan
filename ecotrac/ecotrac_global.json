@@ -10,56 +10,10 @@
             "Corinth": "J:/JohBenRivCarGoogleDrive/Chorus/Brunel/ecotrac/"
         }
         ,"config_perGitvServer":{
-            "D04_Desdemona+Desdemona":{ 
-                "mode": "DEV",
-                "rootFolder": "Data_Desdemona/",
-                "gitBranch": "D04_Desdemona",
-                "server": "Desdemona"
-            }
-
-            ,"D03_WebServer+Desdemona":{ 
-                "mode": "DEV",
-                "rootFolder": "D03_Desdemona/",
-                "gitBranch": "D03_Webserver",
-                "server": "Desdemona"
-            }
-
-            ,"T01+Desdemona":{ 
+            "T04+Corinth":{ 
                 "mode": "TEST",
-                "rootFolder": "T01_Desdemona/",
-                "gitBranch": "T01",
-                "server": "Desdemona"
-            }
-            
-            ,"B01_Corinth+Corinth":{ 
-                "mode": "BETA",
-                "rootFolder": "ecotrac_B01_Corinth/",
-                "gitBranch": "B01_Corinth",
-                "server": "Corinth"
-            }
-            ,"T02+Corinth":{ 
-                "mode": "TEST",
-                "rootFolder": "T02_Corinth/",
-                "gitBranch": "T02",
-                "server": "Corinth"
-            }
-            ,"T03+Corinth":{ 
-                "mode": "TEST",
-                "rootFolder": "T03_Corinth/",
-                "gitBranch": "T03",
-                "server": "Corinth"
-            }
-            ,"T03_Corinth+Corinth":{ 
-                "mode": "TEST",
-                "rootFolder": "T03_Corinth/",
-                "gitBranch": "T03_Corinth",
-                "server": "Corinth"
-            }
-            ,"P01+Corinth":{ 
-                "mode": "PROD",
-                "basePath": "J:/My Drive/Chorus/Brunel/ecotrac/",
-                "rootFolder": "P01_Corinth/",
-                "gitBranch": "P01",
+                "rootFolder": "Data_Corinth/",
+                "gitBranch": "T04",
                 "server": "Corinth"
             }
         }
