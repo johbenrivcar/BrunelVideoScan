@@ -10,10 +10,10 @@
             "Corinth": "J:/JohBenRivCarGoogleDrive/Chorus/Brunel/ecotrac/"
         }
         ,"config_perGitvServer":{
-            "D03+Desdemona":{ 
+            "D04_Desdemona+Desdemona":{ 
                 "mode": "DEV",
-                "rootFolder": "ecotrac_D03_Desdemona/",
-                "gitBranch": "D03",
+                "rootFolder": "Data_Desdemona/",
+                "gitBranch": "D04_Desdemona",
                 "server": "Desdemona"
             }
 

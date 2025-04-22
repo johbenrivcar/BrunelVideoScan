@@ -3,23 +3,27 @@
 import sys
 import datetime
 import time
+# Get the python math library
+import math
+
+# Get the ecotrac settings module and getSetting function
+import brunel_ecotrac_settings
+getSetting = brunel_ecotrac_settings.getSetting
+
+# Get the Brunel Ecotract classes module
+import brunel_ecotrac_classesA
+overallStats = brunel_ecotrac_classesA.overallStats
+
+# The msg function is used to send messages through stdOut to the  
+# controlling nodejs process.
+msg = brunel_ecotrac_classesA.msg
+
 # Returns cpu time used so far by the current process
 cpuTime = time.process_time
 # Now function returns the current date and time
 newTS = datetime.datetime.now
 def sDTS(dt):
     return str(dt)[0:19]
-
-
-
-####################################
-# This function is used to send messages through stdOut to the  
-# controlling nodejs process.
-def msg(*items):
-    print("[-!-]", *items)
-    sys.stdout.flush()
-# #################################
-
 
 # Get the openCV library
 import cv2
@@ -34,16 +38,7 @@ pos_infoLine2 =(20, 70 )
 pos_topRight1 =( 900, 30 )
 pos_logoLine1 =( 900, 700)
 
-# Get the python math library
-import math
 
-# Get the ecotrac settings module and getSetting function
-import brunel_ecotrac_settings
-getSetting = brunel_ecotrac_settings.getSetting
-
-# Get the Brunel Ecotract classes module
-import brunel_ecotrac_classesA
-overallStats = brunel_ecotrac_classesA.overallStats
 
 
 # Get references to specific functions in classes module
@@ -139,7 +134,7 @@ msg("Run time parameters: ", rtps)
 targetMode = "" # Parameter key is mode
 targetRoot = "" # Parameter key is root, path to root folder (normally on gDrive ecotrac folder)
 targetCustomer = "" # Parameter key is cust, gives name of the customer folder (normally "cust_" followed by email )
-fldr = "" # parameter key is fldr, gives the name of the order sub-folder (in customer folder) to be scanned
+targetVideoFolder = "" # parameter key is fldr, gives the name of the order sub-folder (in customer folder) to be scanned
 disp = False # parameter key is disp, Y or N indicates if you want to see the video animation while it is being scanned
 
 # check disp setting (optional)
@@ -173,7 +168,7 @@ targetFolderFullPath = join( targetRoot, targetCustomer, targetVideoFolder )
 
 
 scanReport = brunel_ecotrac_classesA.getLogger(targetFolderFullPath)
-scanReport.log( "_________________________________________________")
+scanReport.log( "_____________________________________________________________________________________________________________________")
 scanReport.log( "* Scanning run started at "+ sDTS(startTS) )
 
 msg( "Target folder: ", targetFolderFullPath)
@@ -204,7 +199,7 @@ def isScannable(f): # ====================================
 showDisplay = disp
 
 msg( "\n ##################################################### Started at", datetime.now().strftime("%H:%M") )
-sys.stdout.flush()
+#sys.stdout.flush()
 try:
     # Get the list of video files to be processed
     # They must all end in .mp4 but not .scanned.mp4 (which is the output file of the scanning process)
@@ -303,7 +298,7 @@ for videoFileName in filesToProcess:
     msg(" -Path", videoSourceFullPath )
     
     # Get a (wrapped) video reader object, see the brunel classes file A
-    videoReader = brunel_ecotrac_classesA.VideoReader(videoSourceFullPath)
+    videoReader = brunel_ecotrac_classesA.VideoReader(targetFolderFullPath, videoFileName)
 
     # Get the underlying openCV video reader object
     #video = videoReader.video
@@ -480,7 +475,7 @@ for videoFileName in filesToProcess:
                 # box on the previous frame, then use the position of that
                 # previous frame
                 if  nearestShift < shiftLimit :
-                    msg("Box shift", nearestShift, box.report(), "<<", nearestBox.report(), "                            ")
+                    #msg("Box shift", nearestShift, box.report(), "<<", nearestBox.report(), "                            ")
                     #msg("")
                     box.t = nearestBox.t
                     box.l = nearestBox.l
@@ -576,12 +571,17 @@ msg( "##################################################### Finished at", dateti
 #video.release()
 videoOut.release()
 
+overallStats.videoFolder = targetVideoFolder
+overallStats.folderName = targetVideoFolder
 overallStats.report()
 
+overallStats.sendStats()
 
 msg("CPU:" + str(cpuTime()))
 
 msg("END:000")
+
+exit( 2344 )
 #cv2.waitKey(0)
 #cv2.destroyAllWindows()
 

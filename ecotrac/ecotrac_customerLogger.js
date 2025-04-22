@@ -40,7 +40,7 @@ function getCustomerLog(email){
         switch(true){
             case hhmm=="0000":
                 logFile.write( newdt.full )
-                logFile.write("Customer log started for " + customer.email )
+                logFile.write("Customer log started for " + email )
                 break;
             case hhmm != newdt.hhmm:
                 console.log( newdt.full );
@@ -50,7 +50,7 @@ function getCustomerLog(email){
                 break;
         };
         
-        logFile.write(customer.email + "| "   , ...params )
+        logFile.write(email + "| "   , ...params )
         hhmm = newdt.hhmm
         mmss = newdt.mmss
 

@@ -6,6 +6,18 @@ import os
 import sys
 import datetime
 import time
+import json
+
+from os.path import isfile, join
+
+####################################
+# This function is used to send messages through stdOut to the  
+# controlling nodejs process.
+def msg(*items):
+    print("[-!-]", *items)
+    sys.stdout.flush()
+# #################################
+
 
 # Returns cpu time used so far by the current process
 cpuTime = time.process_time
@@ -42,7 +54,7 @@ class Log:
 
     def log(self, info):
         self.logger.debug(info)
-        print("scanner", info)
+        print("scanner log: ", info)
 
 
 myLog = None
@@ -112,6 +124,7 @@ class VideoFrame:
     frameNumber = 0
     
 class VideoStats:
+    folderName = ""
     fileNumber = 0
     fps = 0
     mspf = 0
@@ -157,6 +170,7 @@ class OverallStats():
     oStats = VideoStats()
     def addStats(self, stats):
         os = self.oStats
+        #os.folderName = stats.videoFolder
         os.fps = stats.fps
         os.videoCount += stats.videoCount
         os.frameCount += stats.frameCount
@@ -175,6 +189,24 @@ class OverallStats():
         ll.log( "***** OVERALL STATS FOR THE SCAN ***********************")
         self.oStats.reportStats()
 
+    def sendStats(self):
+        os = self.oStats
+        dicOS = {}
+        dicOS["folderName"]=self.videoFolder
+        dicOS["fps"]=os.fps
+        dicOS["videoCount"]=os.videoCount
+        dicOS["frameCount"]=os.frameCount
+        dicOS["scanCPUSecs"]=os.scanCPUSecs
+        dicOS["scanTimeSecs"]=os.scanTimeSecs
+        dicOS["videoMB"]=os.videoMB
+        dicOS["videoDurationSecs"]=os.videoDurationSecs
+        dicOS["scanStartTime"]=os.scanStartTime.strftime("%Y%m%d %H%M%S")
+        dicOS["scanEndTime"]=os.scanEndTime.strftime("%Y%m%d %H%M%S")
+        dicOS["scanCPUPerMinVideo"]=os.scanCPUPerMinVideo
+        dicOS["scanCPUPerFrame"]=os.scanCPUPerFrame
+        strOS = json.dumps(dicOS)
+        msg( "STATS:" + strOS)
+
 
 overallStats = OverallStats()
 videoFileCount = 0
@@ -188,17 +220,19 @@ class VideoReader:
     stats = VideoStats()
     
 
-    def __init__(self,  videoFileName):
+    def __init__(self, targetFolderFullPath, videoFileName ):
         global videoFileCount
         videoFileCount += 1
+        self.videoSourceFullPath = videoSourceFullPath = join(targetFolderFullPath , videoFileName);
+
         stats = self.stats
         stats.fileNumber = videoFileCount
         stats.videoCount = 1
         # fileName, fileSeqNumber, fileDTS, fileFrameRate, fileCodec, fileFrameCount, 
         self.fileName = videoFileName
-        stats.videoMB = os.stat(videoFileName).st_size/1000000.0
+        stats.videoMB = os.stat(videoSourceFullPath).st_size/1000000.0
         #print(" -- opening VideoReader --------------------------")
-        self.video = video = cv2.VideoCapture(videoFileName)
+        self.video = video = cv2.VideoCapture(videoSourceFullPath)
 
         #TO DO - handle file open error here
         # Get hold of the first frame from the video and save it as the reference frame

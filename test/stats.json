@@ -1,0 +1,13 @@
+{
+    "fps": 30.0, 
+    "videoCount": 2, 
+    "frameCount": 2716, 
+    "scanCPUSecs": 33.59375, 
+    "scanTimeSecs": 16, 
+    "videoMB": 8.490473, 
+    "videoDurationSecs": 90.533, 
+    "scanStartTime": "20250420 160940", 
+    "scanEndTime": "20250420 160955", 
+    "scanCPUPerMinVideo": 22.26398108976837, 
+    "scanCPUPerFrame": 0.012368832842415316
+}

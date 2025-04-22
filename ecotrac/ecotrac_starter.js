@@ -38,6 +38,8 @@ function start(){
     console.log("** Running on server:             " + server );
     console.log("** Root path set to               " + eGlobal.ECOTRAC_ROOT_PATH); 
 
+    
+
 }
     root = require("./ecotrac_root");
     // root.start is an async function that kicks off the application load and runs

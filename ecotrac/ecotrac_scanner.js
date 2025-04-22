@@ -19,6 +19,7 @@ const runMode = eGlobal.RUN_MODE;
 const settings = require("./ecotrac_settings");
 const events = require("./ecotrac_events");
 
+
 const scannerName = eGlobal.python.scanning.pythonScriptName.replace("[MODE]", runMode).replace(/\\/g, "/")
 
 
@@ -35,7 +36,6 @@ const spawn = require("child_process").spawn;
 const allScanners = {};
 const queuedScanners = [];
 var scannerCount = 0
-
 
 class Scanner{
     constructor( customer, folder ){
@@ -60,7 +60,7 @@ class Scanner{
         this.log(">> StartScan ")
         let mode = 'MODE:' + runMode;
         let root = 'ROOT:' + settings.customersFolderFullPath
-        let cust = 'CUST:' + this.customer.custFolder;
+        let cust = 'CUST:' + this.customer.custFolderName;
         this.log( { mode, root, cust })
         let scanFolder = this.folder.folderName;
 
@@ -72,8 +72,8 @@ class Scanner{
 
         let newFolderName = this.folder.folderName.replace(".ready", ".scanning");
 
-        let oldFolderPath = settings.customersFolderFullPath  + this.customer.custFolder + "/" + this.folder.folderName;
-        let newFolderPath = settings.customersFolderFullPath + this.customer.custFolder + "/"  + newFolderName;
+        let oldFolderPath = settings.customersFolderFullPath  + this.customer.custFolderName + "/" + this.folder.folderName;
+        let newFolderPath = settings.customersFolderFullPath + this.customer.custFolderName + "/"  + newFolderName;
         
         try{
             this.log( "Attempting rename");
@@ -95,6 +95,16 @@ class Scanner{
         
         let proc = this.pythonProcess = spawn('py', [pathToScannerScript, mode , root, cust, fldr], {cwd: pathToScannerCWD } );
 
+        proc.on("exit", (code)=>{
+            this.log( `Scanning process #${this.id} for ${cust} on folder ${fldr} has exited with code ${code}`);
+            
+
+            
+            this.pythonProcess = null;
+
+        });
+
+
         proc.stdout.on('data', (data) => {
             let msgIn = data.toString();
             let msgs = msgIn.split( "[-!-]");
@@ -104,6 +114,28 @@ class Scanner{
                 if(msg.length > 0){
 
                     this.log("|py|=[" + msg + "]=" );
+                    if(msg.substr(0, 6) == "STATS:"){
+                        //this.log ("Stats returned from scanner:");
+                        let json = msg.substr(6);
+                        this.log( "raw json:", json);
+                        try{
+
+                            let stats = JSON.parse(json);
+
+                            this.log( "stats", stats )
+                            this.customer.scanCompleted( stats )
+            
+                            let ac = require("./ecotrac_allCustomers");
+                            ac.saveAllCustomersJSON();
+
+            
+            
+            
+                        } catch(e){
+                            this.log( `Could not parse stats json from python scanner:`, json)
+                            this.log(e)
+                        }
+                    };
 
                     if(msg.substr(0, 4) == "END:"){
                         this.log("Scanning process completed");
@@ -117,7 +149,7 @@ class Scanner{
                             this.log( newFolderPath );
                             fs.renameSync(oldFolderPath, newFolderPath);
                             this.folder.scanInProgress = false;
-
+                            
                         } catch(e){
                             this.log ("ERROR: When trying to rename folder after scan");
 

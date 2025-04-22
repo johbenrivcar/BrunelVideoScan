@@ -4,11 +4,15 @@
 exports.getStateAndKeyFromFolderName = getStateAndKeyFromFolderName;
 exports.dinfo = dinfo;
 exports.dts = dts;
-
+exports.zIfNull = zIfNull;
 
 
 const log = require("./ecotrac_logger").getLogger("_utils")
-
+function zIfNull(num){
+    if(isNaN(num)) return 0;
+    return num;
+    
+}
 function getStateAndKeyFromFolderName(folderName){
     let pts = folderName.split(".");
     let state, key;
@@ -16,16 +20,14 @@ function getStateAndKeyFromFolderName(folderName){
         state = pts.pop().toLowerCase();
         key = pts.join(".");
     } else {
-        state = "notready";
+        state = "none";
         key = folderName;
     }
     log(folderName, "pts", pts, state, key)
     switch(state ){
         case "ready":
-        case "scan_in_process":
         case "scanning":
-        case "scanned":
-        case "scan_complete":
+        case "processed":
             break;
         default:    
             state = "notready";

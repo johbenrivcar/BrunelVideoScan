@@ -27,6 +27,12 @@ async function run(  ){
 
     load_allCustomers();
 
+    process.on("SIGINT", () => {
+        
+        allCustomers.saveAllCustomersJSON()
+
+        process.exit(0);
+      });
 }
 
 //var allCustomers = null;

@@ -2,50 +2,77 @@
  * This is the global variables module that is used througout the application to
  * provide run-time settings and variables that are not modified once set. 
  * 
- * 
- * 
  */
 
 /** Before loading anything, we get the run-time parameters from the 
- * user. These parameters indicate the 1) the Git version, which defines which version of
- * ecotrac is being run and 2) the name of the gDrive data folder which contains all the
- * application data - normally this is named after the server on which the system
- * is being run, for ease of partitioning the system to avoid clashes of operation. 
- * The user will start the system by entering 
- *     node ecotrac_starter GITV:T2305 SRVR:Corinth
+ * user. These parameters indicate 
+ * 1) the Git version, which defines which version of ecotrac is being run 
+ * 2) the name of the gDrive data folder which contains all the
+ *    application data - normally this is named after the server on which the system
+ *    is being run, for ease of partitioning the system to avoid clashes of operation. 
+ * 
+ * For example, the administrator will start the system by entering 
+ *     node ecotrac_starter "GITV:T2305" "SRVR:Corinth"
+ * 
+ * indicating that the system is running version T2305 of the code on the server 
+ * named Corinth.
+ * 
+ * The global module will find settings for this particular combination of GITV and SRVR in the
+ * ecotrac_global.json file:
+ * 1) The path to the Google Drive data root that contain the application data folders
+ * 2) The application data subfolder within the Google Drive root to be used for this 
+ *     code version on this server
+ * 3) The GIT branch of the code to be run, which must match the GITV parameter
+ * 4) A mode flag to indicate if this is Development, Test or Production configuration
+ * 5) The name of the server, which must match the SRVR parameter
+ * 
+ * If any of the configuration variables are inconsistent, the run will be aborted with and
+ * error message.
+ *
+ * So, whenever a new GIT branch of the application code is made, a new entry must be made in
+ * the ecotrac_global.json file which provides these configuration settings for every server that
+ * the code will be run on. Provided that the coniguration settings are managed with care, this
+ * will avoid the application being run on the wrong server or with the wrong version of the code. 
  */
+
+// Variables for runtime parameters
 let GITV, SRVR;
-let rtps = process.argv
-console.log("rtps",rtps)
+
+// Variables for parameters to come from global.json
 let mode , gitBranch, rootFolder, server, basePath
 let config
 let json
 
+// Get the runtime parameters
+let rtps = process.argv
+// console.log("rtps",rtps)
+
+// Run through each of the run time parameters to get the values
 try{
     rtps.forEach(  (rtp, ix)=>{
     let kvp = rtp.split(":", 2);
     
     // console.log("kvp", kvp)
 
-    if (kvp.length != 2 ){
-        throw new Error("Invalid parameter, must be KEY:value format", rtp);
+    if (kvp.length == 2 ){
+   
+        let key = kvp[0].toUpperCase();
+        let val = kvp[1];
+        switch(key){
+            case "GITV":
+                console.log("rtp", rtp)
+                GITV = val;
+                break;
+            case "SRVR":
+                console.log("rtp", rtp)
+                SRVR = val;
+                break;
+            default:
+                //console.log("  >Ignored")
+                // ignore this parameter
+                // throw new Error(`Invalid parameter, [${key}] is not a recognised parameter`, rtp);
+        } 
     };
-    let key = kvp[0].toUpperCase();
-    let val = kvp[1];
-    switch(key){
-        case "GITV":
-            console.log("rtp", rtp)
-            GITV = val;
-            break;
-        case "SRVR":
-            console.log("rtp", rtp)
-            SRVR = val;
-            break;
-        default:
-            //console.log("  >Ignored")
-            // ignore this parameter
-            // throw new Error(`Invalid parameter, [${key}] is not a recognised parameter`, rtp);
-    }
     });
 
     if(!GITV){
@@ -149,10 +176,10 @@ module.exports = exports = {
     , python: json.python
     , dts
 };
-bInit = false;
+
 console.log("### global MODULE LOADED - DEFAULT VALUES SET")
 
-
+// bInit = false;
 // function setRunMode(mode){
 //     if(bInit){
 //         console.log("_global: Attempt to set run mode twice - not allowed (" + mode + ")");

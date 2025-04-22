@@ -8,7 +8,8 @@ exports.foundFolder = foundCustomerFolder;
 exports.load = load;
 exports.getCustomer = getCustomer;
 exports.INIT = INIT;
-
+exports.saveAllCustomersJSON = saveAllCustomersJSON;
+exports.customerUpdated = customerUpdated;
 
 var bINIT = false;
 const fs = require("fs");
@@ -48,21 +49,37 @@ function INIT(){
 
 }
 
+updatesSinceLastSave = 0;
+lastSaveTS = 0;
+
+function customerUpdated(customer){
+    allCustomers[customer.email] = customer;
+    updatesSinceLastSave++
+
+}
+
 function load(){
     log(">>.load()")
     // get the customer record keys from the JSON data
     let custKeys = Object.keys(allCustData);
-    // creating customer entries in allCustData
+
+    // creating customer objects from allCustData, 
+    // because the customer includes functions that are
+    // not saved in customer data.
     custKeys.forEach( (key, ix)=>{
 
+        // Get the customer data for the customer
+        // The key is by convention equal to the email address
         custData = allCustData[key];
-        let customer = newCustomer()
-        log("Created empty customer record ")
-        log( customer );
-        if(!customer.startMonitoringCustomer){
-            log("Could not find monitoring function");
-        } else log("Monitoring function was found");
+        email = custData.email;
+
+        let folder = custData.custFolderName
+
+        let customer = newCustomer(email );
+        log(`Created customer record to hold data for ${email}`);
+
         customer.loadFromDataFile(custData);
+
         log("Loaded data from custData json" + key)
         log( customer );
         if(!customer.startMonitoringCustomer){
@@ -72,9 +89,8 @@ function load(){
         allCustomers[key]=customer;
     })
 
-    let ccc1 = allCustomers["charles@brunelbrands.com"];
-    if( ccc1.startMonitoringCustomer ) { log(" After load, Monitor function was found" ) } else { log("After load, Monitor function not found")}
-
+    // let ccc1 = allCustomers["charles@brunelbrands.com"];
+    // if( ccc1.startMonitoringCustomer ) { log(" After load, Monitor function was found" ) } else { log("After load, Monitor function not found")}
 
     saveAllCustomersJSON();
 
@@ -111,7 +127,9 @@ function getCustomer(email){
     let cc = allCustomers[email];
     if(!cc){
         cc = newCustomer(email);
+        allCustomers[email] = cc;
     }
+    return cc;
 }
 
 
@@ -119,27 +137,32 @@ function getCustomer(email){
 function saveAllCustomersJSON(){
     log(">> saveAllCustomersJSON (which also saves old customer JSON to backup)");
 
-    let ccc1 = allCustomers["charles@brunelbrands.com"];
-    if( ccc1.startMonitoringCustomer ) { log(" Monitor function was found" ) } else { log("Monitor function not found")}
+    // let ccc1 = allCustomers["charles@brunelbrands.com"];
+    // if( ccc1.startMonitoringCustomer ) { log(" Monitor function was found" ) } else { log("Monitor function not found")}
 
     // Get the old JSON from the allCustData object
     let oldJSON = JSON.stringify( allCustData, null, 3 );
     let fileNameBackup = allCustomersJSONPath + "_" + utils.dts() + ".json";
     fs.writeFileSync(fileNameBackup, oldJSON );
 
+    // NOW GOING TO SAVE ALL CUSTOMER JSON
+    log("Now going to save all customers into customers.json file");
+    log("allCustomers before save", allCustomers);
+
+
     // Create a copy of all the customer data from the array of all customers
     allCustData = Object.assign( {}, allCustomers) ;
 
     // Create the JSON string from all that data
-    let newJSON = JSON.stringify( allCustData, null, 3 );
+    let newJSON = JSON.stringify( allCustomers, null, 3 );
 
     // Write the new JSON to the customers.json file
     fs.writeFileSync(allCustomersJSONPath, newJSON );
 
     // Check the Customer data
     log(" allCustomers:"); log( allCustomers )
-    let ccc2 = allCustomers["charles@brunelbrands.com"];
-    if( ccc2.startMonitoringCustomer ) { log(" Monitor function was found" ) } else { log("Monitor function not found")}
+    // let ccc2 = allCustomers["charles@brunelbrands.com"];
+    // if( ccc2.startMonitoringCustomer ) { log(" Monitor function was found" ) } else { log("Monitor function not found")}
     log("<< saveAllCustomersJSON");
     //process.exit(3223)
 
