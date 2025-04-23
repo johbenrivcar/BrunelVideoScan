@@ -145,7 +145,7 @@ try:
         # set flat to True if the rtp is set to "Y", otherwise it's false
         disp = rtps["disp"]=="Y"
 except:
-    disp = True
+    disp = False
 
 # check that all four other rtps are given, because they are all mandatory
 try:
