@@ -272,6 +272,8 @@ scanNum = 0
 frameNumber = 0
 outputFrameCount = 0
 outputTimeSecs = 0 # Length of the output video in seconds, (frames / 30 fps)
+boxBorder = 3
+boxColour = {}
 
 #msg("");
 maxContours = 0

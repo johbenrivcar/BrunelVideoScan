@@ -4,9 +4,10 @@
 ## trail of dots that follow the movement across the frame.
 
 import cv2
+import brunel_ecotrac_classesA as classesA
+COLOURS = classesA.COLOURS
 
-
-initialDotColour = (127, 127, 127)
+initialDotColour = COLOURS.green # (255, 255, 255)
 dotList = {}
 dotCount = 0
 
