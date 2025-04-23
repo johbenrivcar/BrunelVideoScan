@@ -14,6 +14,8 @@ getSetting = brunel_ecotrac_settings.getSetting
 import brunel_ecotrac_classesA
 overallStats = brunel_ecotrac_classesA.overallStats
 
+import brunel_ecotrac_FadingDot as fDots
+
 # The msg function is used to send messages through stdOut to the  
 # controlling nodejs process.
 msg = brunel_ecotrac_classesA.msg
@@ -143,7 +145,7 @@ try:
         # set flat to True if the rtp is set to "Y", otherwise it's false
         disp = rtps["disp"]=="Y"
 except:
-    disp = False
+    disp = True
 
 # check that all four other rtps are given, because they are all mandatory
 try:
@@ -413,7 +415,6 @@ for videoFileName in filesToProcess:
         #
         boxes = []
 
-
         if True: #len(contourList)<50: # Only show rectangles if there are fewer than 50 on the frame
             
             for contour in contourList:
@@ -493,9 +494,13 @@ for videoFileName in filesToProcess:
             boxesToShow = prevBoxes
         
         prevBoxes = boxes
+        
+        fDots.drawAllDotsOnFrame( frame ) 
 
         for box in boxesToShow:
             box.drawInFrame(frame)
+            fDots.newDot( box );
+        
             #cv2.rectangle( frame, (box.l,box.t), (box.r, box.b), (0, 255, 0), 3 )
 
         # If there are no boxes to be shown, set the frame skipping 

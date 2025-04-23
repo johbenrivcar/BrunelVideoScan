@@ -21,6 +21,12 @@
                 "rootFolder": "Data_Desdemona/",
                 "gitBranch": "T04",
                 "server": "Desdemona"
+            },
+            "D05_Desdemona+Desdemona":{ 
+                "mode": "DEV",
+                "rootFolder": "Data_Desdemona/",
+                "gitBranch": "D05_Desdemona",
+                "server": "Desdemona"
             }
         }
     }, 
