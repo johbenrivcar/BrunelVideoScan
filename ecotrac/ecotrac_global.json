@@ -27,6 +27,12 @@
                 "rootFolder": "Data_Desdemona/",
                 "gitBranch": "D05_Desdemona",
                 "server": "Desdemona"
+            },
+            "D05+Corinth":{ 
+                "mode": "DEV",
+                "rootFolder": "Data_Corinth/",
+                "gitBranch": "D05",
+                "server": "Corinth"
             }
         }
     }, 
