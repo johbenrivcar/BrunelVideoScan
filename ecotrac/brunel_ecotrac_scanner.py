@@ -30,6 +30,10 @@ def sDTS(dt):
 # Get the openCV library
 import cv2
 # Get basoc cv cpmstamsts used in scanning
+
+
+
+
 infoFont = cv2.FONT_HERSHEY_DUPLEX
 logoFont = cv2.FONT_HERSHEY_PLAIN or cv2.FONT_ITALIC
 infoColor = (255, 255, 255)

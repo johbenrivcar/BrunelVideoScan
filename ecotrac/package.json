@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "express": "^5.1.0",
+    "express-generator": "^4.2.0",
     "ffmpeg": "^0.0.4",
     "fs": "^0.0.1-security",
     "pug": "^3.0.3"

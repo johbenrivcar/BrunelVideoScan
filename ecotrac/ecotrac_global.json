@@ -47,10 +47,18 @@
         , "scanning":{
             "pythonScriptName": "brunel_ecotrac_scanner.py",
             "maxFrameSize": 1080,
-            "snapTo": 20,
+            "snapTo": 10,
             "skipAfter": 10,
-            "shiftLimit": 100,
+            "shiftLimit": 20,
             "sensitivity": 5
+        }
+        , "colours": {
+            
+            "white" : [255,255,255],
+            "grey" : [150,150,150],
+            "red" : [255, 0, 0],
+            "green": [0, 255, 0],
+            "blue" : [0, 0, 255]  
         }
     }
 
