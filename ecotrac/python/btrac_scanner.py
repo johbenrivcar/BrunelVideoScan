@@ -50,18 +50,18 @@ import time
 import math
 
 # Get the ecotrac settings module and getSetting function
-import brunel_ecotrac_settings
-getSetting = brunel_ecotrac_settings.getSetting
+import btrac_settings
+getSetting = btrac_settings.getSetting
 
 # Get the Brunel Ecotract classes module
-import brunel_ecotrac_classesA
-overallStats = brunel_ecotrac_classesA.overallStats
+import btrac_classesA
+overallStats = btrac_classesA.overallStats
 
-import brunel_ecotrac_FadingDot as fDots
+import btrac_FadingDot as fDots
 
 # The msg function is used to send messages through stdOut to the  
 # controlling nodejs process.
-msg = brunel_ecotrac_classesA.msg
+msg = btrac_classesA.msg
 
 # Returns cpu time used so far by the current process
 cpuTime = time.process_time
@@ -72,11 +72,11 @@ def sDTS(dt):
 
 # Get the openCV library
 import cv2
-# Get basoc cv cpmstamsts used in scanning
+# Get basoc cv constants used in scanning
 
 
 
-
+# Settings for writing information to frame
 infoFont = cv2.FONT_HERSHEY_DUPLEX
 logoFont = cv2.FONT_HERSHEY_PLAIN or cv2.FONT_ITALIC
 infoColor = (255, 255, 255)
@@ -91,11 +91,13 @@ pos_logoLine1 =( 900, 700)
 
 
 # Get references to specific functions in classes module
-sDTS           = brunel_ecotrac_classesA.sDTS
-secsDiff       = brunel_ecotrac_classesA.secsDiff
-cpuTime        = brunel_ecotrac_classesA.cpuTime
-newTS          = brunel_ecotrac_classesA.newTS
-secsToMinsSecs = brunel_ecotrac_classesA.secsToMinsSecs
+sDTS           = btrac_classesA.sDTS
+secsDiff       = btrac_classesA.secsDiff
+cpuTime        = btrac_classesA.cpuTime
+newTS          = btrac_classesA.newTS
+secsToMinsSecs = btrac_classesA.secsToMinsSecs
+
+#image logo to be watermarked into scan output
 #imgLogo = cv2.resize( cv2.imread("images/logo04.png"), (1280, 720) )
 
 def addLogoToFrame( frame, img ):
@@ -126,11 +128,13 @@ def addInfoToFrame( fileName, frame, videoNumber, frameNumber, secsFromStart ):
 
 
     cv2.putText( frame , "Brunel " + getSetting("app_name") , pos_logoLine1, logoFont, fontsize * 2, color = logoColor )
+# ----------------------------------------------------------------------------
 
+# Time stamp and CPU time used so far, at start
 startTS = newTS()
 startCPU = cpuTime()
-
 print("Scanning run started at " + sDTS(startTS) + " with CPU so far " + str(startCPU) )
+# ----------------------------------------------
 
 
 # Get os library which gives access to files and folders
@@ -141,11 +145,15 @@ from os.path import isfile, join
 
 # Get tje python date/time library
 from datetime import datetime
+# -------------------------------------------------------
+
 
 # ############# RUN TIME PARAMETERS
 args = sys.argv
 msg("py args", args)
 sys.stdout.flush()
+# ---------------------------------
+
 
 # ###############
 # This section gets holds of the run time parameters
@@ -217,7 +225,7 @@ if not targetVideoFolder.endswith(".scanning"):
 targetFolderFullPath = join( targetRoot, targetCustomer, targetVideoFolder )
 
 
-scanReport = brunel_ecotrac_classesA.getLogger(targetFolderFullPath)
+scanReport = btrac_classesA.getLogger(targetFolderFullPath)
 scanReport.log( "_____________________________________________________________________________________________________________________")
 scanReport.log( "* Scanning run started at "+ sDTS(startTS) )
 
@@ -278,20 +286,20 @@ if len(filesToProcess) == 0:
     exit(106)
 
 # ==== Scanning settings from the settings file
-snapTo = brunel_ecotrac_settings.getSetting("scanning.snapTo")
-skipAfter = brunel_ecotrac_settings.getSetting("scanning.skipAfter")
-shiftLimit = brunel_ecotrac_settings.getSetting("scanning.shiftLimit")
+snapTo = btrac_settings.getSetting("scanning.snapTo")
+skipAfter = btrac_settings.getSetting("scanning.skipAfter")
+shiftLimit = btrac_settings.getSetting("scanning.shiftLimit")
 
 # sensitivity should be a number in the range 1 to 10, this is
 # translated into threshold numbers used to detect if changes have
 # occurred in images.
 # NOT CURRENTLY IMPLEMENTED
-sensitivity = brunel_ecotrac_settings.getSetting("scanning.sensitivity")
+sensitivity = btrac_settings.getSetting("scanning.sensitivity")
 
 
 # ****************
 
-COLOURS = brunel_ecotrac_classesA.Colours()
+COLOURS = btrac_classesA.Colours()
 videoOutputFullPath = ""
 reportOutputFullPath = ""
 
@@ -350,7 +358,7 @@ for videoFileName in filesToProcess:
     msg(" -Path", videoSourceFullPath )
     
     # Get a (wrapped) video reader object, see the brunel classes file A
-    videoReader = brunel_ecotrac_classesA.VideoReader(targetFolderFullPath, videoFileName)
+    videoReader = btrac_classesA.VideoReader(targetFolderFullPath, videoFileName)
 
     # Get the underlying openCV video reader object
     #video = videoReader.video
@@ -375,7 +383,7 @@ for videoFileName in filesToProcess:
 
         # Create the video writer output file using the same fps as the input.
         #  (We assume that all input videos have the same frame rate)
-        videoWriter = brunel_ecotrac_classesA.VideoWriterMP4(videoOutputFullPath, int(videoReader.stats.fps/2), ( outputFrameWidth, outputFrameHeight ) ) #videoInfo.frameSize )
+        videoWriter = btrac_classesA.VideoWriterMP4(videoOutputFullPath, int(videoReader.stats.fps/2), ( outputFrameWidth, outputFrameHeight ) ) #videoInfo.frameSize )
         
         # Get the underlying OpenCV video object (in future will wrap)
         videoOut = videoWriter.video
@@ -486,7 +494,7 @@ for videoFileName in filesToProcess:
                 adjl = l - l % snapTo
                 adjb = b - b % snapTo
                 adjr = r - r % snapTo
-                box = brunel_ecotrac_classesA.Box(adjl, adjt, adjr, adjb)
+                box = btrac_classesA.Box(adjl, adjt, adjr, adjb)
                 boxes.append( box )
 
         # Check for sudden increase in number of boxes, ignore the boxes 

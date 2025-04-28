@@ -24,6 +24,7 @@ const express = require("express");
 const pug = require("pug");
 const getPage = require("./pages/getPage");
 const getScript = require("./public/javascripts/getScript")
+const scanData = require("./xScanData")
 
 function fin(ctxt, ...params){
     return new i(ctxt, ...params);

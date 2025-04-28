@@ -7,12 +7,12 @@
 import cv2
 
 # Brunel ecotrac classes to provide COLOURS object defining colour for the bubble
-import brunel_ecotrac_classesA as classesA
+import btrac_classesA as classesA
 COLOURS = classesA.COLOURS
 
 # Settings used to define certain parameters of the run
-import { python } from brunel_ecotrac_settings 
-
+import btrac_settings 
+python = btrac_settings.python
 
 initialDotColour = COLOURS.green # (255, 255, 255)
 dotList = {}

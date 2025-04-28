@@ -70,7 +70,7 @@ class Customer{
      * been updated
      */
     reportUpdated(){
-        if(!allCustomers) allCustomers = require("./ecotrac_allCustomers");
+        if(!allCustomers) allCustomers = require("./btrac_allCustomers");
         allCustomers.customerUpdated( this );
     }
 

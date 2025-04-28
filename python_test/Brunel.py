@@ -1,5 +1,5 @@
 import cv2
-import ecotrac.brunel_ecotrac_settings as brunel_ecotrac_settings
+import ecotrac.btrac_settings as btrac_settings
 
 class Colours:
     def __init__(self):

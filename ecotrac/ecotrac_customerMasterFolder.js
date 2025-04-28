@@ -5,7 +5,7 @@
 var bINIT = false;
 const eGlobal = require("./ecotrac_global");
 const settings = require("./ecotrac_settings");
-const allCustomers = require("./ecotrac_allCustomers");
+const allCustomers = require("./btrac_allCustomers");
 
 const fs = require("fs");
 const paths = settings.paths;

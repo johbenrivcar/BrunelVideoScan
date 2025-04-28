@@ -60,7 +60,8 @@
     
         }
         , "scanning":{
-            "pythonScriptName": "brunel_ecotrac_scanner.py",
+            "pythonScriptFolder": "/python",
+            "pythonScriptName": "btrac_scanner.py",
             "maxFrameSize": 1080,
             "snapTo": 10,
             "skipAfter": 10,

@@ -40,10 +40,11 @@ function start(){
 
     
 
-}
-    root = require("./ecotrac_root");
-    // root.start is an async function that kicks off the application load and runs
+    // root.run is an async function that kicks off the application load and runs
     // the application.
+    let root = require("./ecotrac_root");
     setImmediate( ()=>{ root.run(run_mode) } )
 
+
+}
 

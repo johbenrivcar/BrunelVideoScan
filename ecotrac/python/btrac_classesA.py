@@ -1,6 +1,6 @@
 import cv2
 import sys
-import brunel_ecotrac_settings
+import btrac_settings
 import logging
 import os
 import sys

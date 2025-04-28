@@ -14,7 +14,7 @@ const utils = require("./ecotrac_utils");
 const paths = settings.paths;
 const events = require("./ecotrac_events");
 const log = require("./ecotrac_logger").getLogger("ecotrac_customerMasterFolder");
-const allCustomers = require("./ecotrac_allCustomers");
+const allCustomers = require("./btrac_allCustomers");
 events.addStream("monitor_event");
 
 

@@ -1,10 +1,10 @@
 
 import json
 
-settingsJSON = {}
+python = settingsJSON = {}
 
 # Read in the global json file and get the python settings
-with open('ecotrac_global.json') as sss:
+with open('../ecotrac_global.json') as sss:
     eGlobal = json.load(sss)
     settingsJSON = eGlobal["python"]
     settingsJSON["app_name"] = eGlobal["global"]["app_name"]
