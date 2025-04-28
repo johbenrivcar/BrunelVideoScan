@@ -1,3 +1,46 @@
+## This is the core component that scans video file(s) to detect movement (or any change) in what is 
+## recorded on a video and to generate a summary video of those parts of the input that show changes
+## 
+## Changes are detected by comparing each frame to its preceding frame to find areas of change, then
+## drawing boxes round those areas of change before writing the frame to an output file. If there 
+## are no changes then the frame is not written to the output. This way, the output contains only those
+## parts of the input that show changes.
+##
+## The process by which changes are detected is as follows
+##  * each frame is first converted from colour to grey-scale (note that colours might change
+##  significantly yet have the same grey-scale value - in such cases no movement would be detected.
+##  in practice this is unlikely to be a significant problem). The resulting grey-scale image
+##  consists of an array of pixels with a grey-scale value in the range 0-255
+##  * the image is mathematically processed to introduce a small amount of blurring acroos the whole
+##  frame, to help avoid mistakently registering movement from very minor changes of tone, due to 
+##  signal noise or imperfections, or very small movements in small area of the image.
+##  * the two frames (current frame and previous frame) are compared mathematically by subtracting
+##  the value of each pixel in the current frame from the value of the corresponding pixel on the 
+##  previous frame and saving the absolute value of the difference in a new differences frame.
+##  * The resulting differences are then filtered by applying a maximal-contrast filter that sets
+##  any difference greater than a certain threshold value to 255 (the maximum), and any difference less
+##  then the threshold to zero, thereby ignoring below threshold. Visually, the difference frame now
+##  appears as white sploges (max values) representing points of difference (movement) against a
+##  uniformly black background.
+##  * The differences image may now contain quite fragmented patches of movement that are in fact
+##  parts of the same single overall movement. To avoid reporting multiple movements instead of a single
+##  movement, the white patches are expanded by a certain radius, thereby enlarging all the white patches into
+##  the surrounding black areas. This effectively soaks up small areas of black that may be surrounded
+##  by large numbers of white patches - a bit like blots spreading and merging on a porous surface.
+##  * Having expanded the areas of white, the next step is to contract them by the same amount to reduce
+##  their overall size. Although this will bring the outermost borders of white areas back to where
+##  they started, any areas of black that were eliminated within or along edges of white areas in the
+##  previous step remain white, effectively reducing "noise".
+##  * The resulting differences image now shows solid areas of movement in which most of the spurious
+##  noise and fragments have been eliminated. This is now processed by an edge-tracing (contouring)
+##  algorithm to follow the boundaries of all the separate white areas and work out the dimensions 
+##  and position of a rectangle (box) that completely encloses each separate area of movement. 
+##  * The boxes so identified are to be drawn on the output summary video to visually highlight
+##  areas of movement. As these boxes are drawn on a single frame taken from the original video, having
+##  too many overlapping boxes my look to chaotic. So..
+##  * The boxes are compared to find those that have centre points that are close together. Where
+##  such close boxes are found, they are both replaced by a single box that encompasses both.
+##  
 # Get the sys library for stdOut abd run-time
 # parameters
 import sys
@@ -66,7 +109,8 @@ def addLogoToFrame( frame, img ):
     # return outFrame
 
 
-
+## This function is used to add meta-data to each frame that identifies the original video file
+## containing the frame and the frame number and point in time of the frame within that video.
 def addInfoToFrame( fileName, frame, videoNumber, frameNumber, secsFromStart ):
     global fontsize, infoColor, infoFont, secsToMinsSecs, logoFont, pos_infoLine1, pos_infoLine2, pos_logoLine1, pos_topRight1, logoColor
 
