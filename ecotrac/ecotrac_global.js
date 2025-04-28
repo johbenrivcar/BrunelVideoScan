@@ -141,7 +141,7 @@ try{
 
     fs = require("fs");
 
-    let data = fs.readFileSync('../.git/HEAD', 'utf8');
+    let data = fs.readFileSync( require.resolve('../.git/HEAD'), 'utf8');
     let runningSourceVersion = data.split("/").pop().trimRight();
     if( runningSourceVersion!==GITV ){
         throw new Error(`Mismatch between expected run-time version [${GITV}] and actual source code version [${runningSourceVersion}]`)

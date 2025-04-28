@@ -21,10 +21,11 @@ const events = require("./ecotrac_events");
 
 
 const scannerName = eGlobal.python.scanning.pythonScriptName.replace("[MODE]", runMode).replace(/\\/g, "/")
+const pythonScriptFolder = eGlobal.python.scanning.pythonScriptFolder;
 
 
-const pathToScannerCWD = __dirname.replace(/\\/g, "/") ;
-console.log("CWD", pathToScannerCWD)
+const pathToScannerCWD = __dirname.replace(/\\/g, "/") +  pythonScriptFolder;
+console.log("Python scanner CWD", pathToScannerCWD)
 
 const pathToScannerScript = pathToScannerCWD + "/" + scannerName
 console.log("Path to scanner " + pathToScannerScript )
@@ -125,7 +126,7 @@ class Scanner{
                             this.log( "stats", stats )
                             this.customer.scanCompleted( stats )
             
-                            let ac = require("./ecotrac_allCustomers");
+                            let ac = require("./btrac_allCustomers");
                             ac.saveAllCustomersJSON();
 
             

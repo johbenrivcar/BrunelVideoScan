@@ -1,3 +1,46 @@
+## This is the core component that scans video file(s) to detect movement (or any change) in what is 
+## recorded on a video and to generate a summary video of those parts of the input that show changes
+## 
+## Changes are detected by comparing each frame to its preceding frame to find areas of change, then
+## drawing boxes round those areas of change before writing the frame to an output file. If there 
+## are no changes then the frame is not written to the output. This way, the output contains only those
+## parts of the input that show changes.
+##
+## The process by which changes are detected is as follows
+##  * each frame is first converted from colour to grey-scale (note that colours might change
+##  significantly yet have the same grey-scale value - in such cases no movement would be detected.
+##  in practice this is unlikely to be a significant problem). The resulting grey-scale image
+##  consists of an array of pixels with a grey-scale value in the range 0-255
+##  * the image is mathematically processed to introduce a small amount of blurring acroos the whole
+##  frame, to help avoid mistakently registering movement from very minor changes of tone, due to 
+##  signal noise or imperfections, or very small movements in small area of the image.
+##  * the two frames (current frame and previous frame) are compared mathematically by subtracting
+##  the value of each pixel in the current frame from the value of the corresponding pixel on the 
+##  previous frame and saving the absolute value of the difference in a new differences frame.
+##  * The resulting differences are then filtered by applying a maximal-contrast filter that sets
+##  any difference greater than a certain threshold value to 255 (the maximum), and any difference less
+##  then the threshold to zero, thereby ignoring below threshold. Visually, the difference frame now
+##  appears as white sploges (max values) representing points of difference (movement) against a
+##  uniformly black background.
+##  * The differences image may now contain quite fragmented patches of movement that are in fact
+##  parts of the same single overall movement. To avoid reporting multiple movements instead of a single
+##  movement, the white patches are expanded by a certain radius, thereby enlarging all the white patches into
+##  the surrounding black areas. This effectively soaks up small areas of black that may be surrounded
+##  by large numbers of white patches - a bit like blots spreading and merging on a porous surface.
+##  * Having expanded the areas of white, the next step is to contract them by the same amount to reduce
+##  their overall size. Although this will bring the outermost borders of white areas back to where
+##  they started, any areas of black that were eliminated within or along edges of white areas in the
+##  previous step remain white, effectively reducing "noise".
+##  * The resulting differences image now shows solid areas of movement in which most of the spurious
+##  noise and fragments have been eliminated. This is now processed by an edge-tracing (contouring)
+##  algorithm to follow the boundaries of all the separate white areas and work out the dimensions 
+##  and position of a rectangle (box) that completely encloses each separate area of movement. 
+##  * The boxes so identified are to be drawn on the output summary video to visually highlight
+##  areas of movement. As these boxes are drawn on a single frame taken from the original video, having
+##  too many overlapping boxes my look to chaotic. So..
+##  * The boxes are compared to find those that have centre points that are close together. Where
+##  such close boxes are found, they are both replaced by a single box that encompasses both.
+##  
 # Get the sys library for stdOut abd run-time
 # parameters
 import sys
@@ -7,18 +50,18 @@ import time
 import math
 
 # Get the ecotrac settings module and getSetting function
-import brunel_ecotrac_settings
-getSetting = brunel_ecotrac_settings.getSetting
+import btrac_settings
+getSetting = btrac_settings.getSetting
 
 # Get the Brunel Ecotract classes module
-import brunel_ecotrac_classesA
-overallStats = brunel_ecotrac_classesA.overallStats
+import btrac_classesA
+overallStats = btrac_classesA.overallStats
 
-import brunel_ecotrac_FadingDot as fDots
+import btrac_FadingDot as fDots
 
 # The msg function is used to send messages through stdOut to the  
 # controlling nodejs process.
-msg = brunel_ecotrac_classesA.msg
+msg = btrac_classesA.msg
 
 # Returns cpu time used so far by the current process
 cpuTime = time.process_time
@@ -29,7 +72,11 @@ def sDTS(dt):
 
 # Get the openCV library
 import cv2
-# Get basoc cv cpmstamsts used in scanning
+# Get basoc cv constants used in scanning
+
+
+
+# Settings for writing information to frame
 infoFont = cv2.FONT_HERSHEY_DUPLEX
 logoFont = cv2.FONT_HERSHEY_PLAIN or cv2.FONT_ITALIC
 infoColor = (255, 255, 255)
@@ -44,11 +91,13 @@ pos_logoLine1 =( 900, 700)
 
 
 # Get references to specific functions in classes module
-sDTS           = brunel_ecotrac_classesA.sDTS
-secsDiff       = brunel_ecotrac_classesA.secsDiff
-cpuTime        = brunel_ecotrac_classesA.cpuTime
-newTS          = brunel_ecotrac_classesA.newTS
-secsToMinsSecs = brunel_ecotrac_classesA.secsToMinsSecs
+sDTS           = btrac_classesA.sDTS
+secsDiff       = btrac_classesA.secsDiff
+cpuTime        = btrac_classesA.cpuTime
+newTS          = btrac_classesA.newTS
+secsToMinsSecs = btrac_classesA.secsToMinsSecs
+
+#image logo to be watermarked into scan output
 #imgLogo = cv2.resize( cv2.imread("images/logo04.png"), (1280, 720) )
 
 def addLogoToFrame( frame, img ):
@@ -66,7 +115,8 @@ def addLogoToFrame( frame, img ):
     # return outFrame
 
 
-
+## This function is used to add meta-data to each frame that identifies the original video file
+## containing the frame and the frame number and point in time of the frame within that video.
 def addInfoToFrame( fileName, frame, videoNumber, frameNumber, secsFromStart ):
     global fontsize, infoColor, infoFont, secsToMinsSecs, logoFont, pos_infoLine1, pos_infoLine2, pos_logoLine1, pos_topRight1, logoColor
 
@@ -78,11 +128,13 @@ def addInfoToFrame( fileName, frame, videoNumber, frameNumber, secsFromStart ):
 
 
     cv2.putText( frame , "Brunel " + getSetting("app_name") , pos_logoLine1, logoFont, fontsize * 2, color = logoColor )
+# ----------------------------------------------------------------------------
 
+# Time stamp and CPU time used so far, at start
 startTS = newTS()
 startCPU = cpuTime()
-
 print("Scanning run started at " + sDTS(startTS) + " with CPU so far " + str(startCPU) )
+# ----------------------------------------------
 
 
 # Get os library which gives access to files and folders
@@ -93,11 +145,15 @@ from os.path import isfile, join
 
 # Get tje python date/time library
 from datetime import datetime
+# -------------------------------------------------------
+
 
 # ############# RUN TIME PARAMETERS
 args = sys.argv
 msg("py args", args)
 sys.stdout.flush()
+# ---------------------------------
+
 
 # ###############
 # This section gets holds of the run time parameters
@@ -145,7 +201,7 @@ try:
         # set flat to True if the rtp is set to "Y", otherwise it's false
         disp = rtps["disp"]=="Y"
 except:
-    disp = True
+    disp = False
 
 # check that all four other rtps are given, because they are all mandatory
 try:
@@ -169,7 +225,7 @@ if not targetVideoFolder.endswith(".scanning"):
 targetFolderFullPath = join( targetRoot, targetCustomer, targetVideoFolder )
 
 
-scanReport = brunel_ecotrac_classesA.getLogger(targetFolderFullPath)
+scanReport = btrac_classesA.getLogger(targetFolderFullPath)
 scanReport.log( "_____________________________________________________________________________________________________________________")
 scanReport.log( "* Scanning run started at "+ sDTS(startTS) )
 
@@ -230,20 +286,20 @@ if len(filesToProcess) == 0:
     exit(106)
 
 # ==== Scanning settings from the settings file
-snapTo = brunel_ecotrac_settings.getSetting("scanning.snapTo")
-skipAfter = brunel_ecotrac_settings.getSetting("scanning.skipAfter")
-shiftLimit = brunel_ecotrac_settings.getSetting("scanning.shiftLimit")
+snapTo = btrac_settings.getSetting("scanning.snapTo")
+skipAfter = btrac_settings.getSetting("scanning.skipAfter")
+shiftLimit = btrac_settings.getSetting("scanning.shiftLimit")
 
 # sensitivity should be a number in the range 1 to 10, this is
 # translated into threshold numbers used to detect if changes have
 # occurred in images.
 # NOT CURRENTLY IMPLEMENTED
-sensitivity = brunel_ecotrac_settings.getSetting("scanning.sensitivity")
+sensitivity = btrac_settings.getSetting("scanning.sensitivity")
 
 
 # ****************
 
-COLOURS = brunel_ecotrac_classesA.Colours()
+COLOURS = btrac_classesA.Colours()
 videoOutputFullPath = ""
 reportOutputFullPath = ""
 
@@ -272,6 +328,8 @@ scanNum = 0
 frameNumber = 0
 outputFrameCount = 0
 outputTimeSecs = 0 # Length of the output video in seconds, (frames / 30 fps)
+boxBorder = 3
+boxColour = {}
 
 #msg("");
 maxContours = 0
@@ -300,7 +358,7 @@ for videoFileName in filesToProcess:
     msg(" -Path", videoSourceFullPath )
     
     # Get a (wrapped) video reader object, see the brunel classes file A
-    videoReader = brunel_ecotrac_classesA.VideoReader(targetFolderFullPath, videoFileName)
+    videoReader = btrac_classesA.VideoReader(targetFolderFullPath, videoFileName)
 
     # Get the underlying openCV video reader object
     #video = videoReader.video
@@ -325,7 +383,7 @@ for videoFileName in filesToProcess:
 
         # Create the video writer output file using the same fps as the input.
         #  (We assume that all input videos have the same frame rate)
-        videoWriter = brunel_ecotrac_classesA.VideoWriterMP4(videoOutputFullPath, int(videoReader.stats.fps/2), ( outputFrameWidth, outputFrameHeight ) ) #videoInfo.frameSize )
+        videoWriter = btrac_classesA.VideoWriterMP4(videoOutputFullPath, int(videoReader.stats.fps/2), ( outputFrameWidth, outputFrameHeight ) ) #videoInfo.frameSize )
         
         # Get the underlying OpenCV video object (in future will wrap)
         videoOut = videoWriter.video
@@ -436,7 +494,7 @@ for videoFileName in filesToProcess:
                 adjl = l - l % snapTo
                 adjb = b - b % snapTo
                 adjr = r - r % snapTo
-                box = brunel_ecotrac_classesA.Box(adjl, adjt, adjr, adjb)
+                box = btrac_classesA.Box(adjl, adjt, adjr, adjb)
                 boxes.append( box )
 
         # Check for sudden increase in number of boxes, ignore the boxes 

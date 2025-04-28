@@ -1,12 +1,20 @@
-## This implements the class that can output a dot to a frame in the same position over a number of
-## frames, fading the dot until it is no longer displayed. This is used to generate a footprint
-## trail wherever a movement is seen on the frame, giving the impression of a gradually fading
-## trail of dots that follow the movement across the frame.
+##  This implements the class that can output a dot to a frame in the same position over a number of
+##  frames, fading the dot until it is no longer displayed. Used to generate a "bubble"
+##  trail wherever a difference is detected on the frame, usually from a moving body, giving the
+##  effect of a gradually fading trail of dots that follow the moving object across the frame.
 
+# OpenCV library for drawing shapes on a frame
 import cv2
 
+# Brunel ecotrac classes to provide COLOURS object defining colour for the bubble
+import btrac_classesA as classesA
+COLOURS = classesA.COLOURS
 
-initialDotColour = (127, 127, 127)
+# Settings used to define certain parameters of the run
+import btrac_settings 
+python = btrac_settings.python
+
+initialDotColour = COLOURS.green # (255, 255, 255)
 dotList = {}
 dotCount = 0
 

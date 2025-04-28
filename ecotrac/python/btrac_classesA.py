@@ -1,6 +1,6 @@
 import cv2
 import sys
-import brunel_ecotrac_settings
+import btrac_settings
 import logging
 import os
 import sys
@@ -85,7 +85,7 @@ class Dot:
         self.y = centre[1]
         self.centre = centre
         self.radius = 10 if radius==None else radius
-        self.colour = clr = COLOURS.white
+        self.colour = clr = COLOURS.green
         decayFactor = 240/60
         self.decayOn = False
 
@@ -350,7 +350,7 @@ class Box:
         return "Box{ t:" + str(self.t) +",l:" + str(self.l) +",b:" + str(self.b) +",r:" + str(self.r) + "}"
 
     def drawInFrame(self, frame):
-        cv2.rectangle( frame, (self.l,self.t), (self.r, self.b), self.rgb, 3 )
+        cv2.rectangle( frame, (self.l,self.t), (self.r, self.b), self.rgb, 1 )
 
     def getDot(self):
         d = Dot(self.centre, 10)

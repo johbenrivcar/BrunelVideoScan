@@ -2,14 +2,23 @@
     "global":{
         "comment10":"global section is used by both node and python scripts",
 
-        "app_name": "ecoScan",
+        "app_name": "bubbleScan",
         "default_mode": "T03_Corinth" ,
 
         "dataPath_perServer":{
+            "comment201": "This provides the path to the shared google drive that has data for the system",
+            "comment202": "The setting depends on which server the system is being run on because the mapping",
+            "comment203": "to the Google drive can differ on each server",
             "Desdemona": "G:/My Drive/Chorus/Brunel/ecotrac/",
             "Corinth": "J:/JohBenRivCarGoogleDrive/Chorus/Brunel/ecotrac/"
         }
         ,"config_perGitvServer":{
+            "comment301": "Provides configuration settings that depend on the Git branch of the system code",
+            "comment302": "and the server - the GIT branch and server are supplied by the administrator",
+            "comment303": "when the system is first started using [ node GITV:gitbranch SRVR:servername ]",
+            "comment304": "The system looks for an entry gitbranch+servername in the members of this list.",
+            "comment305": "and checks that the code branch being used matches the gitbranch name given above",
+            
             "T04+Corinth":{ 
                 "mode": "TEST",
                 "rootFolder": "Data_Corinth/",
@@ -26,6 +35,12 @@
                 "mode": "DEV",
                 "rootFolder": "Data_Desdemona/",
                 "gitBranch": "D05_Desdemona",
+                "server": "Desdemona"
+            },
+            "D05+Desdemona":{ 
+                "mode": "DEV",
+                "rootFolder": "Data_Desdemona/",
+                "gitBranch": "D05",
                 "server": "Desdemona"
             },
             "D05+Corinth":{ 
@@ -45,12 +60,21 @@
     
         }
         , "scanning":{
-            "pythonScriptName": "brunel_ecotrac_scanner.py",
+            "pythonScriptFolder": "/python",
+            "pythonScriptName": "btrac_scanner.py",
             "maxFrameSize": 1080,
-            "snapTo": 20,
+            "snapTo": 10,
             "skipAfter": 10,
-            "shiftLimit": 100,
+            "shiftLimit": 20,
             "sensitivity": 5
+        }
+        , "colours": {
+            
+            "white" : [255,255,255],
+            "grey" : [150,150,150],
+            "red" : [255, 0, 0],
+            "green": [0, 255, 0],
+            "blue" : [0, 0, 255]  
         }
     }
 
