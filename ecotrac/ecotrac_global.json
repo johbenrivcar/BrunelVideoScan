@@ -53,6 +53,8 @@
     }, 
     "python":{
         "comment20":"python section gives default parameters for processing video files in python script",
+
+
         "videoTypes":{
             "mp4": { "fourcc": ""} 
             , "ts": { "fourcc": ""}
@@ -74,7 +76,15 @@
             "grey" : [150,150,150],
             "red" : [255, 0, 0],
             "green": [0, 255, 0],
-            "blue" : [0, 0, 255]  
+            "blue" : [0, 0, 255],
+            "special": [300, 145, 200],
+
+            "comment50": "Colours used for drawing on the frame",
+
+            "boxFrame": ">colours.green",
+            "bubbleEdge":  ">colours.green",
+            "infoText":  ">colours.white",
+            "brunelText": ">colours.special"
         }
     }
 

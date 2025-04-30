@@ -143,25 +143,28 @@ class VideoStats:
     scanCPUPerFrame = 0.0
     videoCount = 0
 
-    def reportStats(stats):
+    # The parameter self is the implicit reference to this instance of the
+    # class, which is always the first parameter of the call.
+    def reportStats(self):
+        
         ll = getLogger()
         ll.log("********************************************************")
-        if stats.fps > 0:
-            ll.log("*         Frames per second: " + str( stats.fps ) +  "(" + str( stats.mspf) + "ms per frame)")
-            ll.log("*      Frame width x height: "+ str( stats.frameWidth) +  "x"+ str(  stats.frameHeight   ))
+        if self.fps > 0:
+            ll.log("*         Frames per second: " + str( self.fps ) +  "(" + str( self.mspf) + "ms per frame)")
+            ll.log("*      Frame width x height: "+ str( self.frameWidth) +  "x"+ str(  self.frameHeight   ))
         ll.log("* Scan statistics:")
-        if stats.videoCount > 1:
-            ll.log("*     Number of video files: " + str( stats.videoCount ))
-        ll.log("*           Total file size: " + str( round(stats.videoMB, 3)) + "MB")
+        if self.videoCount > 1:
+            ll.log("*     Number of video files: " + str( self.videoCount ))
+        ll.log("*           Total file size: " + str( round(self.videoMB, 3)) + "MB")
 
-        fcMsg = "* Total frames/video length: " + str(stats.frameCount)
-        if stats.fps > 0:
-            fcMsg += " / " + secsToMinsSecs( ( round( stats.frameCount/stats.fps , 0) ) )
+        fcMsg = "* Total frames/video length: " + str(self.frameCount)
+        if self.fps > 0:
+            fcMsg += " / " + secsToMinsSecs( ( round( self.frameCount/self.fps , 0) ) )
         ll.log(fcMsg)
-        ll.log("*           Scan start time: " + sDTS( stats.scanStartTime) )
-        ll.log("*             Scan end time: " + sDTS( stats.scanEndTime) )
-        ll.log("*        Time taken to scan: " + secsToMinsSecs( stats.scanTimeSecs ) )
-        ll.log("*             CPU Time used: " + str( round( stats.scanCPUSecs , 1) ) + " secs (" + str(round( stats.scanCPUPerMinVideo , 1 )) + " secs/min of video)")
+        ll.log("*           Scan start time: " + sDTS( self.scanStartTime) )
+        ll.log("*             Scan end time: " + sDTS( self.scanEndTime) )
+        ll.log("*        Time taken to scan: " + secsToMinsSecs( self.scanTimeSecs ) )
+        ll.log("*             CPU Time used: " + str( round( self.scanCPUSecs , 1) ) + " secs (" + str(round( self.scanCPUPerMinVideo , 1 )) + " secs/min of video)")
         ll.log("********************************************************")
             
 
@@ -189,6 +192,8 @@ class OverallStats():
         ll.log( "***** OVERALL STATS FOR THE SCAN ***********************")
         self.oStats.reportStats()
 
+    # Creates a JSON string representing the statistics in this overallStats object
+    # and sends it as a STATS message to the parent process (nodejs)
     def sendStats(self):
         os = self.oStats
         dicOS = {}
@@ -217,15 +222,18 @@ class VideoReader:
     prevFrame = None
     prevFrameList = []
     fwdFrameList = []    
-    stats = VideoStats()
-    
+    videoSourceFullPath = ""
 
+    
+    # Constructor parameters tell the reader where to find the video to be scanned
     def __init__(self, targetFolderFullPath, videoFileName ):
         global videoFileCount
+        # New stats object for this reader
+        self.stats = stats = VideoStats()
+
         videoFileCount += 1
         self.videoSourceFullPath = videoSourceFullPath = join(targetFolderFullPath , videoFileName);
 
-        stats = self.stats
         stats.fileNumber = videoFileCount
         stats.videoCount = 1
         # fileName, fileSeqNumber, fileDTS, fileFrameRate, fileCodec, fileFrameCount, 
@@ -239,7 +247,8 @@ class VideoReader:
         (status, frame1) = video.read()
         self.prevFrame = self.refFrame = self.currFrame = frame1
 
-        stats.frameCount += 1
+        stats.frameCount = 1
+
         stats.scanCPUSecs = time.process_time()
         stats.scanTimeSecs = 0.0
         # Now get various properties of the video file which will
@@ -264,7 +273,7 @@ class VideoReader:
         stats.frameWidth = frameWidth
         stats.frameSize = ( frameWidth, frameHeight )
         
-        # Generate a report of this input vidoe to the console.
+        # Generate a report of this input video to the console.
         #self._report()
     
     # Function to read the next frame from the video
@@ -316,23 +325,32 @@ class VideoWriterMP4:
         self.frameWidth = frameSize[0]
         self.frameHeight = frameSize[1]
         self.video = video = cv2.VideoWriter(videoFileName, self.fourcc, fps, frameSize)
+        self.frameCount = 0
 
         #self.fps = video.get(cv2.CAP_PROP_FPS)
         self.mspf = round(1000/self.fps)
         self.frameWidth = frameSize[0]
         self.frameHeight = frameSize[1]
-        self._print()
         
     def write(self, frame):
         self.video.write(frame)
+        self.frameCount +=1
 
     def _print(self):
-        print("************ videoWriter Information:", self.fileName, "*****************")
-        print("* Frames per second:", self.fps, "(", self.mspf, "ms per frame)")
-        print("* FrameSize:", self.frameSize)
-        print("* Frame width x height: ", self.frameWidth, "w", self.frameHeight , "h" )
-        print("************************************************************************\n")
+        ll = getLogger()
+        ll.log("************ videoWriter Information:" + self.fileName + "*****************")
+        ll.log("* Frames per second:" + str(self.fps) + " (" + str(self.mspf) + ") ms per frame)")
+        ll.log("* FrameSize:" + str(  self.frameSize) )
+        ll.log("* Frame width x height: " + str(self.frameWidth) + "w" + str(self.frameHeight ) + "h" )
+        ll.log("* Ouput frames/length: " + str( self.frameCount ) + "/" + secsToMinsSecs( round(self.frameCount / self.fps, 0) ) )
+        ll.log("************************************************************************")
         
+    def  release(self):
+        self.video.release()
+        global overallStats
+        os = overallStats
+        os.outputVideoFrames = self.frameCount
+        self._print()
 
 class Box:
     def __init__(self, l, t, r, b):

@@ -79,8 +79,9 @@ import cv2
 # Settings for writing information to frame
 infoFont = cv2.FONT_HERSHEY_DUPLEX
 logoFont = cv2.FONT_HERSHEY_PLAIN or cv2.FONT_ITALIC
-infoColor = (255, 255, 255)
-logoColor = (300,145, 200)
+infoColor = getSetting("colours.infoText")
+logoColor = getSetting("colours.brunelText")
+
 fontsize = 1
 pos_infoLine1 =(20, 30 )
 pos_infoLine2 =(20, 70 )
@@ -316,7 +317,7 @@ frameDelay = 5
 bgImg = None
 
 # Scanned video output object, writing detected movements to a new video
-videoOut = None 
+videoWriter = None
 isFirstFrame = True
 
 # ## Shape used in modifying image see below
@@ -347,6 +348,7 @@ frame = None
 # Scale factors are calculated later, the ratio of input video frame size to output frame size
 widthScaleFactor = 1 
 heightScaleFactor = 1 
+
 
 # Now, we start scanning each video in turn
 for videoFileName in filesToProcess:
@@ -386,7 +388,7 @@ for videoFileName in filesToProcess:
         videoWriter = btrac_classesA.VideoWriterMP4(videoOutputFullPath, int(videoReader.stats.fps/2), ( outputFrameWidth, outputFrameHeight ) ) #videoInfo.frameSize )
         
         # Get the underlying OpenCV video object (in future will wrap)
-        videoOut = videoWriter.video
+        #videoOut = videoWriter.video
         
         outputFrameNumber = 0
         msg("videoWriter has been created")
@@ -434,9 +436,6 @@ for videoFileName in filesToProcess:
                 #     msg("Frame shape from first frame:", frame.shape)
                 #     fheight, fwidth, fchannels = frame.shape
 
-                #     # Create the video writer output using the same fps and frame size as the input
-                #     videoWriter = brunel_ecotrac_classesA.VideoWriterMP4(videoOutputFileName, videoReader.fps, ( fwidth, fheight ) ) #videoInfo.frameSize )
-                #     videoOut = videoWriter.video
             
         # Convert colour image to monochrome (greyscale) image
         monochromeFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) 
@@ -455,7 +454,7 @@ for videoFileName in filesToProcess:
         # Get the absolute difference image between the background image and the frame read from the video
         diff = cv2.absdiff(bgImg, monochromeFrame)
 
-        ret, thresh = cv2.threshold( diff, 12, 255, cv2.THRESH_BINARY )
+        ret, thresh = cv2.threshold( diff, 5, 255, cv2.THRESH_BINARY )
         thresh = cv2.dilate( thresh, element )
 
         # Get the contours found in the threshold image
@@ -611,8 +610,8 @@ for videoFileName in filesToProcess:
             #print("SecsFromStart", secsFromStart )
             #frame = addLogoToFrame( frame, imgLogo )
             addInfoToFrame( videoFileName, frame, scanNum, frameNumber, secsFromStart )
+            videoWriter.write( frame )
 
-            videoOut.write( frame )
             if showDisplay:
                 cv2.imshow("Scanned", frame)
                 #cv2.imshow("Diff video", diff)
@@ -632,7 +631,7 @@ for videoFileName in filesToProcess:
 
 msg( "##################################################### Finished at", datetime.now().strftime("%H:%M") )
 #video.release()
-videoOut.release()
+videoWriter.release()
 
 overallStats.videoFolder = targetVideoFolder
 overallStats.folderName = targetVideoFolder
