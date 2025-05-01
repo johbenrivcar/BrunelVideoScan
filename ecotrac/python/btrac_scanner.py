@@ -600,8 +600,8 @@ for videoFileName in filesToProcess:
         # Get the contours found in the threshold image
         contourList, res = cv2.findContours( thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
 
-        cv2.imshow("Diff video", diff)
-        cv2.imshow("Threshold", thresh )
+        #cv2.imshow("Diff video", diff)
+        #cv2.imshow("Threshold", thresh )
         key = cv2.waitKey(10)
 
         # Report processing stats
@@ -786,11 +786,11 @@ for videoFileName in filesToProcess:
             addInfoToFrame( videoFileName, frame, scanNum, frameNumber, secsFromStart )
             videoWriter.write( frame )
 
-            cv2.imshow("Scanned", frame)
-            if showDisplay:
+            #cv2.imshow("Scanned", frame)
+            #if showDisplay:
                 #cv2.imshow("Diff video", diff)
                 #cv2.imshow("Threshold", thresh )
-                key = cv2.waitKey(frameDelay)
+                #key = cv2.waitKey(frameDelay)
             # if key == ord('q'):
             #     exit(0))
 
