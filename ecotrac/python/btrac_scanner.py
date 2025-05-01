@@ -350,6 +350,149 @@ widthScaleFactor = 1
 heightScaleFactor = 1 
 
 
+
+
+
+#We always output 1280x720, scaling the video frames to that size whatever the input frame size.
+outputFrameWidth = 1280 
+outputFrameHeight = 720 
+
+def checkRow(r):
+    if r < 0:
+        r = 0
+    else:
+        if r >= outputFrameHeight:
+            r = outputFrameHeight - 1
+    return r
+def checkColumn(c):
+    if c < 0:
+        c = 0
+    if c >= outputFrameWidth:
+        c = outputFrameWidth - 1
+    return c
+
+pixelCount = 0
+
+class Pixel:
+    id = 0
+    hits = 0
+    lastHitFrame = 0
+    showBox = True
+    prow = 0
+    pcol = 0
+    row = 0
+    col = 0
+
+    def __init__(self, row, col):
+        global pixelCount
+        pixelCount +=1
+        self.id = pixelCount
+        self.prow = self.row = row
+        self.pcol = self.col = col
+        #if row == 3:
+        #    self.report("init")
+
+    def bump(self):
+        global outputFrameCount
+        if outputFrameCount - self.lastHitFrame > 600:
+            self.hits = 0
+            #print ("Resetting pixel R" + str( self.row ) + "C" + str(self.col) + " at output frame " + str( outputFrameCount ) )
+        self.hits+=1
+        self.lastHitFrame = outputFrameCount
+        self.showBox = (self.hits < 30)
+        if (not self.showBox ) and self.col < 10 :
+            self.report("hidden")
+
+    def report(self, stage = ""):
+        print ("***** Stage(" + stage + ")id[" + str(self.id) + "]: R" + str(self.prow) + "//" + str(self.row) + "C" + str( self.col ) + " Hits:" + str( self.hits ) + " lastHitFrame:" + str(self.lastHitFrame) + " ShowBox:" + str( self.showBox))
+        
+
+class PixelRow:
+    # row number
+    row = 0
+    # number of columns in the row
+    rowWidth = 0
+    # Max column number = No of columns - 1
+    maxCol = -1
+
+    def __init__(self, row, rowWidth):
+
+        # list of pixels
+        self.px = dict()
+        self.row = row
+        self.rowWidth = rowWidth
+        self.maxCol = rowWidth - 1
+
+        # Create the list of Pixels in this row
+        for col in range(0, rowWidth):
+            # Add New Pixel to the list of pixels
+            self.px[col] = Pixel(row, col) 
+
+        #if row < 10:  
+        #    print( "Map row " + str(row) + " has been created")
+
+    def bump(self, c):
+        if c < self.maxCol:
+            self.px[c + 1].bump()
+        if c > 0:
+            self.px[c - 1].bump()
+        self.px[c].bump()
+
+        
+
+class PixelMap:
+    maprow = None
+    mapwidth = 0
+    mapHeight = 0
+    maxRow = -1
+    maxCol = -1
+
+    def __init__(self, mapWidth, mapHeight):
+        print("Map constructor ************************")
+        self.maprow = dict()
+        self.mapWidth = mapWidth
+        self.mapHeight = mapHeight
+        self.maxRow = mapHeight - 1
+        self.maxCol = mapWidth - 1
+
+        for row in range(0, mapHeight):
+            #print("  Creating pixelRow #" + str(row))
+            self.maprow[row] = PixelRow(row, mapWidth) 
+
+        #print("Finished construction, reporting row 5 >>>>>>>>>")
+        #for col in range( 0, mapWidth ):
+            #print( "   Row 5: Col " + str(col) + " pixel: ") 
+            #self.px(5, col).report("mapInit")
+
+
+    def bump(self, r, c):
+        #print("Bumping r c", r, c)
+        self.maprow[r].bump(c)
+        if r < self.maxRow :
+            self.maprow[r+1].bump(c)
+        if r > 0 :
+            self.maprow[r-1].bump(c)
+
+        # Return the pixel corresponding to the centre of the box
+        return self.maprow[r].px[c]
+    
+    def px(self, r, c):
+        return self.maprow[r].px[c]
+    
+    def showBox(self, r, c):
+        return self.maprow[r].px[c].showBox
+
+
+## The pixel info array ========================================================
+print("Creating pixel map with " + str(outputFrameHeight) + " rows and " + str( outputFrameWidth) + " cols")
+pixelMap = PixelMap( outputFrameWidth, outputFrameHeight )
+
+def px(r, c):
+    return pixelMap.px(r,c)
+
+px(5,5).report("R5C5 after map initialization")
+
+
 # Now, we start scanning each video in turn
 for videoFileName in filesToProcess:
     scanNum += 1
@@ -379,9 +522,6 @@ for videoFileName in filesToProcess:
         msg("Video output file: ", videoOutputFullPath)
         msg("Report output file: ", reportOutputFullPath)
 
-        #We always output 1280x720, scaling the video frames to that size whatever the input frame size.
-        outputFrameWidth = 1280 
-        outputFrameHeight = 720 
 
         # Create the video writer output file using the same fps as the input.
         #  (We assume that all input videos have the same frame rate)
@@ -442,7 +582,7 @@ for videoFileName in filesToProcess:
 
         # Slightly blur the incoming image, which helps to avoid false positives from background movement
         # We may need to rethink this if the moving objects are particularly small in the frame.
-        monochromeFrame = cv2.GaussianBlur(monochromeFrame, (21, 21), 0)
+        monochromeFrame = cv2.GaussianBlur(monochromeFrame, (11, 11), 0)
 
         # If this is the first frame, then use the first frame as the background for comparison.
         if isFirstFrame:
@@ -454,11 +594,15 @@ for videoFileName in filesToProcess:
         # Get the absolute difference image between the background image and the frame read from the video
         diff = cv2.absdiff(bgImg, monochromeFrame)
 
-        ret, thresh = cv2.threshold( diff, 5, 255, cv2.THRESH_BINARY )
+        ret, thresh = cv2.threshold( diff, 20, 255, cv2.THRESH_BINARY )
         thresh = cv2.dilate( thresh, element )
 
         # Get the contours found in the threshold image
         contourList, res = cv2.findContours( thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE )
+
+        cv2.imshow("Diff video", diff)
+        cv2.imshow("Threshold", thresh )
+        key = cv2.waitKey(10)
 
         # Report processing stats
         if len(contourList) > maxContours:
@@ -484,22 +628,42 @@ for videoFileName in filesToProcess:
                 # bottom and right coordinates are taken beyond the box by one grid size
                 # so that when adjusted by modulus the final position is outside the bounding
                 # box
-                b = y+h+snapTo
-                r = x+w+snapTo
+                b = y+h #+snapTo
+                r = x+w #+snapTo
                 
                 # The adjusted grid references are calculated by subtracting the modulus
                 # 
-                adjt = t - t % snapTo
-                adjl = l - l % snapTo
-                adjb = b - b % snapTo
-                adjr = r - r % snapTo
+                adjt = t #- t #% snapTo
+                if adjt<0:
+                    adjt = 0
+                if adjt >= outputFrameHeight:
+                    adjt = outputFrameHeight - 1
+                adjl = l #- l % snapTo
+                adjb = b #- b % snapTo
+                adjr = r #- r % snapTo
                 box = btrac_classesA.Box(adjl, adjt, adjr, adjb)
+
+                # Checking on the pixel map for multiple hits of
+                # movement in the same location on the frame. These
+                # are treated as suspected "noise" that should not
+                # be tracked
+                # 1. Make sure the row and column are on the frame
+                rw = checkRow(box.centre[1])
+                cl = checkColumn(box.centre[0])
+
+                # bump the hit count for this pixel and get back
+                # a flag indicating whether the box should be shown
+                # on the frame
+                box.pixel = pixelMap.bump(rw, cl)
+
+                # add the box to the box list
                 boxes.append( box )
 
         # Check for sudden increase in number of boxes, ignore the boxes 
         # if so and use the boxes from the previous frame
-        if len(boxes) - len(prevBoxes) > 15:
-            # Adopt all the boxes found on the previous frame
+        if len(boxes) - len(prevBoxes) > 50:
+            # Adopt all the boxes found on the previous frame,
+            # ignoring all the boxes found in the current frame
             boxes = prevBoxes
 
         else:
@@ -509,60 +673,70 @@ for videoFileName in filesToProcess:
                 nearestShift = 10000000
                 for pbox in prevBoxes:
                     #msg("Shift calc:", pbox.report(), box.report() )
-                    # Calculate the change in position of all co-ordinate
+                    # Calculate the difference in position of all corner co-ordinates
                     xt = (pbox.t-box.t) 
                     xl = (pbox.l-box.l)
                     xb = (pbox.b-box.b)
                     xr = (pbox.r-box.r)
-                    # Calculate a measure of the degree of difference
+
+                    # Using pythagoras, calculate direct distace between
+                    # the centers of the the two boxes
+                    # 1. Differenc in top left position
                     xtl = math.sqrt(xt**2 + xl**2 )
+                    # 2. Differece in bottom right position
                     xbr = math.sqrt(xb**2 + xr**2 )
+                    # Add these to distances to give a measure of how
+                    # different the boxes are. Identical boxes will have
+                    # boxshift = 0
                     boxshift = xtl + xbr
 
                     # Check if the two boxes are close enough that they
                     # could refer to the same mmovement and there is not
-                    # another box we have already found that closer
+                    # another box we have already found that is closer
                     if boxshift < 20  and boxshift < nearestShift:
                         #msg("pbox, box:", pbox.report(), box.report() )
                         #msg( "SHIFT(t,l,b,r):(", xt, xl, xb, xr, ")")
                         #msg( "ROOT SQUARES( tl, br ):(", xtl, xbr, "}")
-                        #msg("boxshift:", boxshift)
+                        msg("boxshift:", boxshift)
                         nearestBox = pbox
                         nearestShift = boxshift
+
                 # Now check that we found a box that qualifies as the same as a
-                # box on the previous frame, then use the position of that
-                # previous frame
+                # box on the previous frame. If so, then use the previous box
+                # position/diemensions for the current box. This helps to stablise the tracking
                 if  nearestShift < shiftLimit :
                     #msg("Box shift", nearestShift, box.report(), "<<", nearestBox.report(), "                            ")
                     #msg("")
-                    box.t = nearestBox.t
-                    box.l = nearestBox.l
-                    box.b = nearestBox.b
-                    box.r = nearestBox.r
+                    box.setLTRB( nearestBox.l, nearestBox.t, nearestBox.r , nearestBox.b)
+
 
         boxesToShow = boxes
         
-
-        # On the first frame with no movement, after previously there was movement,
+        # On the first frame with no movement found, after previously there was movement,
         # repeat the previous frame boxes for one frame, because sometimes
         # the stream repeats a frame, so it shows no movement even though
         # the next frame will continue the movement from the previous frame
         if len(prevBoxes)>0 and len( boxes ) == 0:
             boxesToShow = prevBoxes
         
+        # save the current box list as the previous box list for use on the next frame
         prevBoxes = boxes
         
+        # draw all the dots from the previous frame, aged by one frame (see the function)
         fDots.drawAllDotsOnFrame( frame ) 
 
+        # Now we are going to draw the boxes on the frame
+        shownBoxesCount = 0
         for box in boxesToShow:
-            box.drawInFrame(frame)
-            fDots.newDot( box );
+            if box.pixel.showBox:
+                shownBoxesCount +=1 
+                box.drawInFrame(frame)
+                fDots.newDot( box )
         
-            #cv2.rectangle( frame, (box.l,box.t), (box.r, box.b), (0, 255, 0), 3 )
-
-        # If there are no boxes to be shown, set the frame skipping 
+        # If there were no boxes shown, set the frame skipping 
         # control variables
-        if len(boxes)==0:
+        if shownBoxesCount==0:
+            # Countup indicates how many frames have been skipped so far
             skipCountUp = 0
             # Are we already skipping? if so, we just continue to skip
             if not skipping:
@@ -612,8 +786,8 @@ for videoFileName in filesToProcess:
             addInfoToFrame( videoFileName, frame, scanNum, frameNumber, secsFromStart )
             videoWriter.write( frame )
 
+            cv2.imshow("Scanned", frame)
             if showDisplay:
-                cv2.imshow("Scanned", frame)
                 #cv2.imshow("Diff video", diff)
                 #cv2.imshow("Threshold", thresh )
                 key = cv2.waitKey(frameDelay)

@@ -69,9 +69,9 @@ class Colours:
     def __init__(self):
         self.white = (255,255,255)
         self.grey = (150,150,150)
-        self.red = (255, 0, 0)
+        self.red = ( 0, 0, 255)
         self.green = (0, 255, 0)
-        self.blue = (0, 0, 255)
+        self.blue = (255, 0, 0)
 
     def mix(self, c1, c2 ):
         return ( round((c1[0]+c2[0])/2), round((c1[1]+c2[1])/2) , round((c1[2]+c2[2])/2))
@@ -353,21 +353,28 @@ class VideoWriterMP4:
         self._print()
 
 class Box:
+    pixel = None
     def __init__(self, l, t, r, b):
+        self.setLTRB(l, t, r, b)
+        self.rgb = COLOURS.green
+
+    def setLTRB(self, l, t, r , b):
         self.l = l 
         self.t = t 
         self.r = r 
         self.b = b
         self.h = h = b-t+1
         self.w = w = r-l+1
-        
         self.centre =( round( l + w/ 2), round( t + h/ 2) )
-        self.rgb = COLOURS.green
-    
+
     def report(self):
         return "Box{ t:" + str(self.t) +",l:" + str(self.l) +",b:" + str(self.b) +",r:" + str(self.r) + "}"
 
     def drawInFrame(self, frame):
+        if self.pixel.showBox:
+            self.rgb = COLOURS.green
+        else:
+            self.rgb = COLOURS.red
         cv2.rectangle( frame, (self.l,self.t), (self.r, self.b), self.rgb, 1 )
 
     def getDot(self):
