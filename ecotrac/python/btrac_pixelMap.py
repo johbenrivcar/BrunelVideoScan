@@ -41,8 +41,6 @@ class Pixel:
         self.hits+=1
         self.lastHitFrame = frameCount
         self.showBox = self.hits < 30
-        global pixelMap
-        pixelMap = self;
 
 class PixelRow:
     # number of columns in the row
@@ -53,7 +51,7 @@ class PixelRow:
     def __init__(self, row, rowWidth):
 
         # list of pixels
-        self.px = dict()
+        self.px = list()
         self.row = row
         self.rowWidth = rowWidth
         self.maxCol = rowWidth - 1
@@ -61,7 +59,7 @@ class PixelRow:
         # Create the list of Pixels in this row
         for col in range(0, rowWidth):
             # Add New Pixel to the list of pixels
-            self.px[col] = Pixel() 
+            self.px.append ( Pixel() )
 
 
     def bump(self, c, frameCount):
@@ -74,22 +72,20 @@ class PixelRow:
 
 class PixelMap:
     maprow = None
-    mapwidth = 0
-    mapHeight = 0
     maxRow = -1
     maxCol = -1
 
-    def __init__(self, mapWidth, mapHeight):
+    def __init__(self, mapHeight, mapWidth):
 
-        self.maprow = dict()
-        self.mapWidth = mapWidth
-        self.mapHeight = mapHeight
+        self.maprow = list()
         self.maxRow = mapHeight - 1
         self.maxCol = mapWidth - 1
 
         for row in range(0, mapHeight):
-            self.maprow[row] = PixelRow(row, mapWidth) 
+            self.maprow.append( PixelRow(row, mapWidth) )
 
+        global pixelMap
+        pixelMap = self
 
     def bump(self, r, c, frameCount):
         self.maprow[r].bump(c, frameCount)
@@ -109,36 +105,42 @@ class PixelMap:
 
 
 def px(r, c):
+    global pixelMap
+    #print( "Getting px(" + str(r) + "," + str(c) + ")" )
     return pixelMap.px(r,c)
 
-def newMap( rows, cols ):
-    pixelMap = PixelMap( cols, rows )
+def createMap( rows, cols ):
+    global pixelMap
+    pixelMap = PixelMap( rows, cols )
     return pixelMap
 
+# def testMap():
+#     ## The pixel info array ========================================================
+#     print("Creating pixel map with 20 rows and 30 cols")
+#     pixelMap = createMap( 20, 30 )
 
-def testMap():
-    ## The pixel info array ========================================================
-    print("Creating pixel map with 20 rows and 30 cols")
-    pixelMap = PixelMap( 30, 20 )
+#     print ("Created map with "+ str( len( pixelMap.maprow ) ) + " rows and " + str( len( pixelMap.maprow[0].px ) ) + " columns")
+
+#     print ("----------------------------")
+#     for r in range(0, 20):
+#         line = ""
+#         for c in range(0, 30):
+#             line +="Y " if px(r, c).showBox else "N "
+#         print( line )
+#     print ("----------------------------")
+
+#     for n in range(34):
+#         pixelMap.bump( 5, 6, 234 )
+#         pixelMap.bump( 6, 4, 234 )
+#         pixelMap.bump( 0, 0 , 234)
+#         pixelMap.bump( 19, 29 , 234)
 
 
-    print ("----------------------------")
-    for r in range(0, 20):
-        line = ""
-        for c in range(0, 30):
-            line +="Y" if px(r, c).showBox else "N"
-        print( line )
-    print ("----------------------------")
+#     print ("----------------------------")
+#     for r in range(0, 20):
+#         line = ""
+#         for c in range(0, 30):
+#             line +=". " if px(r, c).showBox else "# "
+#         print( line )
+#     print ("----------------------------")
 
-    for n in range(34):
-        pixelMap.bump( 5, 6, 234 );
-        pixelMap.bump( 6, 4, 234 );
-
-
-    print ("----------------------------")
-    for r in range(0, 20):
-        line = ""
-        for c in range(0, 30):
-            line +="." if px(r, c).showBox else "#"
-        print( line )
-    print ("----------------------------")
