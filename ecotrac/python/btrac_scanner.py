@@ -355,20 +355,24 @@ heightScaleFactor = 1
 
 #We always output 1280x720, scaling the video frames to that size whatever the input frame size.
 outputFrameWidth = 1280 
+outputMaxCol = outputFrameWidth - 1
 outputFrameHeight = 720 
+outputMaxRow = outputFrameHeight - 1
 
+# functions to check that row or column numbers do not exceed the output frame size.
+# Returns zero if < 0 and max if > max
 def checkRow(r):
     if r < 0:
         r = 0
     else:
-        if r >= outputFrameHeight:
-            r = outputFrameHeight - 1
+        if r > outputMaxRow:
+            r = outputMaxRow
     return r
 def checkColumn(c):
     if c < 0:
         c = 0
-    if c >= outputFrameWidth:
-        c = outputFrameWidth - 1
+    if c > outputMaxCol:
+        c = outputMaxCol
     return c
 
 pixelCount = 0
