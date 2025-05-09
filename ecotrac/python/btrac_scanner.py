@@ -287,17 +287,13 @@ if len(filesToProcess) == 0:
     exit(106)
 
 # ==== Scanning settings from the settings file
-snapTo = btrac_settings.getSetting("scanning.snapTo")
-skipAfter = btrac_settings.getSetting("scanning.skipAfter")
-shiftLimit = btrac_settings.getSetting("scanning.shiftLimit")
-
-# sensitivity should be a number in the range 1 to 10, this is
+# { snapTo , skipAfter , shiftLimit , minDisturbanceSizePx , outputFps , sensitivity , pythonScriptFolder , pythonScriptName , maxFrameSize  } 
+scanning = btrac_settings.getSetting("scanning")
+print( "scanning:", scanning )
+# SENSITIVITY NOT CURRENTLY IMPLEMENTED:
+# scanning.sensitivity should be a number in the range 1 to 10, this is
 # translated into threshold numbers used to detect if changes have
 # occurred in images.
-# NOT CURRENTLY IMPLEMENTED
-sensitivity = btrac_settings.getSetting("scanning.sensitivity")
-
-
 # ****************
 
 COLOURS = btrac_classesA.Colours()
@@ -417,7 +413,7 @@ for videoFileName in filesToProcess:
 
         # Create the video writer output file using the same fps as the input.
         #  (We assume that all input videos have the same frame rate)
-        videoWriter = btrac_classesA.VideoWriterMP4(videoOutputFullPath, int(videoReader.stats.fps/2), ( outputFrameWidth, outputFrameHeight ) ) #videoInfo.frameSize )
+        videoWriter = btrac_classesA.VideoWriterMP4(videoOutputFullPath, int(scanning.outputFps), ( outputFrameWidth, outputFrameHeight ) ) #videoInfo.frameSize )
         
         # Get the underlying OpenCV video object (in future will wrap)
         #videoOut = videoWriter.video
@@ -514,25 +510,25 @@ for videoFileName in filesToProcess:
                 # get the bounding rectangle of the contour
                 (x, y, w, h) = cv2.boundingRect(contour)           
 
-                # Adjust the rectangle to snap to a grid determined by the snapTo setting
-                t = y#(y-snapTo) 
-                l = x#(x-snapTo) 
+                # Adjust the rectangle to snap to a grid determined by the scanning.snapTo setting
+                t = y#(y-scanning.snapTo) 
+                l = x#(x-scanning.snapTo) 
                 # bottom and right coordinates are taken beyond the box by one grid size
                 # so that when adjusted by modulus the final position is outside the bounding
                 # box
-                b = y+h #+snapTo
-                r = x+w #+snapTo
+                b = y+h #+scanning.snapTo
+                r = x+w #+scanning.snapTo
                 
                 # The adjusted grid references are calculated by subtracting the modulus
                 # 
-                adjt = t #- t #% snapTo
+                adjt = t #- t #% scanning.snapTo
                 if adjt<0:
                     adjt = 0
                 if adjt >= outputFrameHeight:
                     adjt = outputFrameHeight - 1
-                adjl = l #- l % snapTo
-                adjb = b #- b % snapTo
-                adjr = r #- r % snapTo
+                adjl = l #- l % scanning.snapTo
+                adjb = b #- b % scanning.snapTo
+                adjr = r #- r % scanning.snapTo
                 box = btrac_classesA.Box(adjl, adjt, adjr, adjb)
 
                 # Checking on the pixel map for multiple hits of
@@ -585,7 +581,7 @@ for videoFileName in filesToProcess:
                     # Check if the two boxes are close enough that they
                     # could refer to the same mmovement and there is not
                     # another box we have already found that is closer
-                    if boxshift <= shiftLimit  and boxshift < nearestShift:
+                    if boxshift <= scanning.shiftLimit  and boxshift < nearestShift:
                         #msg("pbox, box:", pbox.report(), box.report() )
                         #msg( "SHIFT(t,l,b,r):(", xt, xl, xb, xr, ")")
                         #msg( "ROOT SQUARES( tl, br ):(", xtl, xbr, "}")
@@ -596,7 +592,7 @@ for videoFileName in filesToProcess:
                 # Now check that we found a box that qualifies as the same as a
                 # box on the previous frame. If so, then use the previous box
                 # position/diemensions for the current box. This helps to stablise the tracking
-                if  nearestShift < shiftLimit :
+                if  nearestShift < scanning.shiftLimit :
                     #msg("Box shift", nearestShift, box.report(), "<<", nearestBox.report(), "                            ")
                     #msg("")
                     box.setLTRB( nearestBox.l, nearestBox.t, nearestBox.r , nearestBox.b)
@@ -644,7 +640,7 @@ for videoFileName in filesToProcess:
                     # We are not skipping and there's no countdown, so
                     # this must be the first frame with no movement, so
                     # start the countdown
-                    skipCountDown = skipAfter
+                    skipCountDown = scanning.skipAfter
         else:
             # There is movement in this frame, so stop skipping
             # and stop counting down.

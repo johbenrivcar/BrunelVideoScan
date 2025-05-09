@@ -10,6 +10,10 @@ import json
 
 from os.path import isfile, join
 
+# ==== Scanning settings from the settings file
+# { snapTo , skipAfter , shiftLimit , minDisturbanceSizePx , outputFps , sensitivity , pythonScriptFolder , pythonScriptName , maxFrameSize  } 
+scanning = btrac_settings.getSetting("scanning")
+
 ####################################
 # This function is used to send messages through stdOut to the  
 # controlling nodejs process.
@@ -37,6 +41,7 @@ def secsToMinsSecs(secs):
     mm = int( (secs-ss)/60 )
     #print("secsToMinsSecs", secs, ">" , mm , ss )
     return str(mm) + "m" + ("00" + str(ss) + "s")[-3:]
+
 
 
 

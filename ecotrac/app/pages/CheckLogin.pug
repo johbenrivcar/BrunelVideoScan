@@ -1,0 +1,27 @@
+html 
+    head 
+        link( rel="stylesheet" href="/css/default")
+        script( src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js")
+        script(  type="text/javascript" src="/js/framework")
+        script( type="text/javascript" src="/js/test-jquery")
+    body 
+        h1 Brunel <i>bubbleTrac</i>
+        hr
+        table( width="100%" class="hidden")
+            tr 
+                td( class=" show-when-loggedin")
+                    div(class="button left") Customers
+                    div(class="button left") Monitor
+                    div(id="app-exit" class="button right"  ) Exit 
+        hr
+        div( id="main-login-area" class="main-div")
+            form(id="login" action="post" style="background-color: white;") 
+                table 
+                    tr
+                        td Email     
+                        td 
+                            input( length=300 )
+                    tr
+                        td Password 
+                        td 
+                            input( length=300 )

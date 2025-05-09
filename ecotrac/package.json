@@ -4,6 +4,7 @@
     "express-generator": "^4.2.0",
     "ffmpeg": "^0.0.4",
     "fs": "^0.0.1-security",
+    "jquery": "^3.7.1",
     "pug": "^3.0.3"
   }
 }

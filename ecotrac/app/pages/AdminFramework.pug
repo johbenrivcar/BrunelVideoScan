@@ -1,0 +1,18 @@
+//- Home page template
+html 
+    head 
+        link( rel="stylesheet" href="/css/default")
+        script( src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js")
+        script(  type="text/javascript" src="/js/framework")
+        script( type="text/javascript" src="/js/test-jquery")
+    body 
+        h1 Brunel <i>bubbleTrac</i> - Administration
+        hr
+        table( width="100%")
+            tr 
+                td( class=" show-when-loggedin")
+                    div(class="button left") Customers
+                    div(class="button left") Monitor
+                    div(id="app-exit" class="button right"  ) Exit 
+        hr
+        div( id="main-admin-area" class="main-div")

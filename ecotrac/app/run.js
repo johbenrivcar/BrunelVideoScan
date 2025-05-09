@@ -59,7 +59,7 @@ const port = 3000;
 
 app.get("/", (req, res)=>{ let xx = fin("get(/)")
     //xx.log("req", req)
-    homePage = getPage("AppFramework");
+    homePage = getPage("CheckLogin");
     res.send(homePage);
 
 

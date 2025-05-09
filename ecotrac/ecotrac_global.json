@@ -2,7 +2,7 @@
     "global":{
         "comment10":"global section is used by both node and python scripts",
 
-        "app_name": "bubbleScan",
+        "app_name": "bubbleTrac",
         "default_mode": "T03_Corinth" ,
 
         "dataPath_perServer":{
@@ -68,7 +68,9 @@
             "snapTo": 10,
             "skipAfter": 10,
             "shiftLimit": 20,
-            "sensitivity": 5
+            "sensitivity": 5,
+            "minDisturbanceSizePx": 10,
+            "outputFps": 30
         }
         , "colours": {
             
@@ -77,7 +79,7 @@
             "red" : [255, 0, 0],
             "green": [0, 255, 0],
             "blue" : [0, 0, 255],
-            "special": [300, 145, 200],
+            "logo": [300, 145, 200],
 
             "comment50": "Colours used for drawing on the frame",
 
@@ -85,7 +87,8 @@
             "errBoxFrame": ">colours.red",
             "bubbleEdge":  ">colours.green",
             "infoText":  ">colours.white",
-            "brunelText": ">colours.special"
+            "brunelText": ">colours.logo"
+
         }
     }
 
