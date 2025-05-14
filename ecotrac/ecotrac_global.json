@@ -49,10 +49,10 @@
                 "gitBranch": "D05",
                 "server": "Corinth"
             },
-            "R01.D05.0+Corinth":{ 
+            "R05.D05.1+Corinth":{ 
                 "mode": "DEV",
                 "rootFolder": "Data_Corinth/",
-                "gitBranch": "R01.D05.0",
+                "gitBranch": "R05.D05.1",
                 "server": "Corinth"
             }
         }
