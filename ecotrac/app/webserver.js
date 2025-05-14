@@ -1,3 +1,4 @@
+"use strict";
 /**
  * This module loads the express app to handle the Brunel Ecotrac interface to administrators and to customers
  * 
@@ -19,45 +20,33 @@
  * 
  */
 const eGlobal = require("../ecotrac_global");
+const webserver_util = require("./webserver_util");
+const { getCookie, sendScript, sendCSS, sendFile, fin } = webserver_util;
+console.log("Example uuid:", webserver_util.getUID() )
+
 const fs = require("fs");
 const express = require("express");
 const pug = require("pug");
-const getPage = require("./pages/getPage");
-const getScript = require("./public/javascripts/getScript")
+
+const getPage = require("./getPage");
+
 const scanData = require("./xScanData")
 
-function fin(ctxt, ...params){
-    return new i(ctxt, ...params);
-}
-
-class i{
-    static cIndent = "|";
-    constructor(cname, ...params){
-        this.cname = cname;
-        this.oldIndent = i.cIndent;
-        
-        console.log(`${this.oldIndent}>>${this.cname}`, ...params)
-
-        this.indent = i.cIndent = "| " + i.cIndent;
-    }
-    log(...params){
-        console.log(`${this.indent}${this.cname}`, ...params)
-    }
-    x(...params){
-        i.cIndent = this.oldIndent
-        console.log(`${this.oldIndent}<<${this.cname}`, ...params)
-    }
-}
-
-exports.fin = fin;
-
-xx = fin("Load run.js")
-
+let xx = fin("Run.js", (new Date() ).toISOString() )
 const app = express();
 
 const port = 3000;
 
-app.get("/", (req, res)=>{ let xx = fin("get(/)")
+app.use('/', (req, res, next) => {
+    let xx = fin("use(/)")
+    var cookie = getCookie(req);
+    xx.log("cookie", cookie);
+    xx.x();    
+    next();
+});
+
+app.get("/", (req, res)=>{ 
+    let xx = fin("get(/)")
     //xx.log("req", req)
     homePage = getPage("CheckLogin");
     res.send(homePage);
@@ -68,7 +57,7 @@ app.get("/", (req, res)=>{ let xx = fin("get(/)")
 app.get("/css/:cssName", (req, res)=>{
     pp = req.params;
 
-    let xx = new i(`get/css`, pp.cssName);
+    let xx = fin(`get/css`, pp.cssName);
     //xx.log("req", req);
 
     // return a stylesheet here
@@ -100,34 +89,9 @@ app.post( "/f/:formName", (req, res)=>{
 
 app.listen(port, ()=>{
     let xx = fin(`listen()`, port);
-    xx.log(`Example app listening on port` , port );
-    xx.x(23);
+    xx.log(`BubbleTrac app listening on port` , port );
+    xx.x(100);
 });
 
-
-function sendCSS( res, name ){
-    let xx = fin("sendCSS", name)
-    fs.readFile(`public/stylesheets/${name}.css`, 'utf8', (err, data) => {
-        if (err) {
-          console.error(err);
-          res.send("<!-- CSS FILE NOT FOUND -->")
-          return;
-        }
-        res.send(data);
-      });
-    xx.x(425);
-}
-
-function sendScript( res, name ){
-    fs.readFile(`public/javascripts/${name}.js`, 'utf8', (err, data) => {
-        if (err) {
-          console.error(err);
-          res.send(`<!-- SCRIPT FILE ${name} NOT FOUND -->`)
-          return;
-        }
-        res.send(data);
-        return;
-      });
-}
 
 xx.x();

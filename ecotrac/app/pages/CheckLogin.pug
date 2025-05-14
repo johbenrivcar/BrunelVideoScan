@@ -1,13 +1,15 @@
+doctype xhtml
 html 
     head 
         link( rel="stylesheet" href="/css/default")
         script( src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js")
         script(  type="text/javascript" src="/js/framework")
         script( type="text/javascript" src="/js/test-jquery")
+        title bubbleTrac
     body 
         h1 Brunel <i>bubbleTrac</i>
         hr
-        table( width="100%" class="hidden")
+        table( style=" width: 100%" class="menu-area hidden")
             tr 
                 td( class=" show-when-loggedin")
                     div(class="button left") Customers
@@ -15,13 +17,13 @@ html
                     div(id="app-exit" class="button right"  ) Exit 
         hr
         div( id="main-login-area" class="main-div")
-            form(id="login" action="post" style="background-color: white;") 
-                table 
+            form(id="login" action="post" style="background-color: white;" class="login-form hidden") 
+                table( class="form-area")
                     tr
                         td Email     
                         td 
-                            input( length=300 )
+                            input( autocomplete="email" id="email" type="text" size=100 )
                     tr
                         td Password 
                         td 
-                            input( length=300 )
+                            input( autocomplete=1 id="password" type="password" size=100 )

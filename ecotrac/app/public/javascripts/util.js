@@ -12,3 +12,9 @@ function readCookie(name){
     }
     }
 }
+
+function onLoad(){
+    readCookie( "98bjri88")
+}
+
+$( function(){ onload() });

@@ -7,14 +7,21 @@ const noData = {};
 const pagesCompiled = {};
 
 function getPage( name, data = noData ){
-    let pfn = pagesCompiled[name]
+
+    if(name.substring(-4) != ".pug")  name += ".pug"
+            
+    let pfn //= pagesCompiled[name]
     if(!pfn){
         
-        pfn = pug.compileFile( require.resolve( "./" + name + ".pug" ) );
-        pagesCompiled[name]
+        pfn = pug.compileFile( require.resolve( "./" + name ) );
+        pagesCompiled[name] = pfn
+        
     }
     html = pfn( data  )
     console.log("html", html);
     return html;
+    
+
+
 }
 

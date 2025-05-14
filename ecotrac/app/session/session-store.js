@@ -15,7 +15,13 @@ const settings = require("../../ecotrac_global");
  */
 
 function getSessionForReq( req , cbfunction ){
+    // Get the session cookie from the request object
+    
 
+}
 
+function getCookie(req){
+    var cookie = req.headers.cookie
 
+    return cookie.split("; ")
 }

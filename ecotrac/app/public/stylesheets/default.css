@@ -1,13 +1,16 @@
 body {
     background-color: rgb(103, 146, 156);
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   }
+
 h1 {
     color: rgb(208, 214, 193);
   }
+
 p {
     color: red;
   }
+
 .button {
     background-color: lightblue;
     border-color: navy;
@@ -29,14 +32,18 @@ p {
 }
 .right {
   float: right;
-  background-color: white
+  background-color: white;
 }
 
+.form-area{
+  background-color: rgb(123, 149, 167);
+  width: 100%
+}
 
 .main-div{
   width: 100%;
   height: 100%;
-  background-color: rgb(86, 136, 148);;
+  background-color: rgb(86, 136, 148);
 }
 
 .hidden{
