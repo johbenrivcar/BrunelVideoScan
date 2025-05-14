@@ -43,10 +43,16 @@
                 "gitBranch": "D05",
                 "server": "Desdemona"
             },
-            "D05+Corinth":{ 
+            "DO NOT USE D05+Corinth":{ 
                 "mode": "DEV",
                 "rootFolder": "Data_Corinth/",
                 "gitBranch": "D05",
+                "server": "Corinth"
+            },
+            "R01.D05.0+Corinth":{ 
+                "mode": "DEV",
+                "rootFolder": "Data_Corinth/",
+                "gitBranch": "R01.D05.0",
                 "server": "Corinth"
             }
         }
